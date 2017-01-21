@@ -18,17 +18,15 @@ if (!argv['build-vendor']) {
     });
 
     elixir(function (mix) {
-        mix.remove('./_build/*.js') // remove old .js files
-            .webpack('./View/Components/_all.js', './_build') // Compile .vue files
+        mix.webpack('./View/Components/_all.js', './_build/compiled') // Compile .vue files
             .typescript() // Compile .ts files into .js files
-            .scripts('./_build/*.js', './_build/app.js') // Concatenate .js files into one app.js file
-            .remove(['./_build/_all.js', './_build/ts.js']); // Remove intermediate files
+            .scripts('./_build/compiled/*.js', './_build/app.js'); // Concatenate .js files into one app.js file
     });
 
 } else {
 
-    elixir(function(mix) {
+    elixir(function (mix) {
         mix.scripts('./Vendor/*.js', './Vendor/_vendor.bundle.js');
     })
-    
+
 }

@@ -5,7 +5,7 @@
         "removeComments": true,
         "preserveConstEnums": true,
         "sourceMap": false,
-        "outFile": "_build/ts.js"
+        "outFile": "_build/compiled/ts.js"
     },
     "include": [
         "./**/*"
