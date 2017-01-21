@@ -1,0 +1,148 @@
+<html>
+
+<head>
+    <title>ezGraph</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <style>
+        body {
+            font-family: helvetica;
+            font-size: 14px;
+        }
+        
+        #cy {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 999;
+        }
+        
+        h1 {
+            opacity: 0.5;
+            font-size: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <h1>Graph</h1>
+        <div id="cy"></div>
+        <example></example>
+    </div>
+
+    <script src="Vendor/_vendor.bundle.js"></script>
+    <script src='_build/app.js'></script>
+    <script>
+        // Import EzGraph from bundle
+        System.config({
+            packages: {
+                '*': {
+                    defaultExtension: 'js'
+                }
+            }
+        });
+        System.import('Core/EzGraph')
+            .then(function(ezGraph) {
+                window.EzGraph = ezGraph.default;
+                window.Graph = EzGraph.Graph;
+                window.Node = EzGraph.Node;
+                window.GraphColorator = EzGraph.GraphColorator
+            });
+
+        // Work here
+        $(function () {
+
+            let graph = new Graph();
+
+            let A = new Node("A");
+            let B = new Node("B");
+            let C = new Node("C");
+            let D = new Node("D");
+            let E = new Node("E");
+            let F = new Node("F");
+            let G = new Node("G");
+            let H = new Node("H");
+            let Y = new Node("Y");
+            let Z = new Node("Z");
+
+            graph.link(A).to(Z).to(Y).to(B).to(C);
+            graph.link(B).to(D).to(E).to(F);
+            graph.link(C).to(Y).to(D).to(G);
+            graph.link(D).to(E).to(G);
+            graph.link(E).to(F).to(H);
+            graph.link(G).to(Y).to(H);
+
+            
+
+            json = new GraphColorator(graph).color();
+
+            var nodes = [],
+                edges = [],
+                styles = [{
+                        selector: 'node',
+                        style: {
+                            'background-color': 'grey',
+                            labelValign: 'middle',
+                            'content': 'data(name)'
+                        }
+                    },
+
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 3,
+                            'line-color': 'lightgrey'
+                        }
+                    }
+                ];
+                
+            for (var i = 0; i < json["nodes"].length; i++) {
+                let nodeId = json["nodes"][i]["id"];
+                nodes.push({
+                    data: {
+                        id: nodeId,
+                        name: nodeId
+                    }
+                });
+                if (json["nodes"][i].color) {
+                    styles.push({
+                        selector: '#' + nodeId,
+                        style: {
+                            'background-color': json["nodes"][i].color,
+                        }
+                    })
+                }
+            }
+
+            for (var i = 0; i < json["edges"].length; i++) {
+                let edge = json["edges"][i];
+                edges.push({
+                    data: {
+                        id: i,
+                        source: edge.fromNode.id,
+                        target: edge.toNode.id
+                    }
+                });
+            }
+            var cy = window.cy = cytoscape({
+                container: document.getElementById('cy'),
+
+                boxSelectionEnabled: false,
+                autounselectify: true,
+
+                layout: {
+                    name: 'circle'
+                },
+
+                style: styles,
+
+                elements: nodes.concat(edges)
+            });
+            cy.$('#A').data('name', 'A')
+        });
+    </script>
+</body>
+
+</html>
