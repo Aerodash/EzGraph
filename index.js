@@ -24,7 +24,7 @@ System.import('Core/EzGraph')
         function () {
 
             graph = new GraphColorator(EzGraph.sampleGraph()).color();
-          
+
             var cy = window.cy = Cytoscape.createFromGraph(graph, document.getElementById('cy'));
         }
     );
