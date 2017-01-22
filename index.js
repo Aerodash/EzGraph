@@ -19,12 +19,6 @@ System.import('Core/EzGraph')
         window.GraphColorator = EzGraph.GraphColorator;
         window.Cytoscape = EzGraph.Cytoscape;
 
-    }).then(
-        // Work here
-        function () {
-
-            graph = new GraphColorator(EzGraph.sampleGraph()).color();
-
-            var cy = window.cy = Cytoscape.createFromGraph(graph, document.getElementById('cy'));
-        }
-    );
+    }).then(function () {
+        $(window).trigger('LoadVueComponents');
+    });

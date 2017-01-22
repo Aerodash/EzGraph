@@ -14430,10 +14430,13 @@ module.exports = Vue$3;
 //
 //
 //
+//
 
 /* harmony default export */ exports["default"] = {
     mounted: function mounted() {
-        console.log('Application Component mounted.')
+        console.log('Application Component mounted.');
+        var graph = new GraphColorator(EzGraph.sampleGraph()).color();
+        var cy = window.cy = Cytoscape.createFromGraph(graph, document.getElementById('cy'));
     }
 };
 
@@ -14470,8 +14473,14 @@ module.exports = Vue$3;
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_vm._v("\n    Main application\n")])
-},staticRenderFns: []}
+  return _vm._m(0)
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_c('h1', [_vm._v("Main application")]), _vm._v(" "), _c('div', {
+    attrs: {
+      "id": "cy"
+    }
+  })])
+}]}
 module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()
@@ -14539,17 +14548,21 @@ module.exports = function(module) {
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-// Initialization
-window._ = __webpack_require__(3);
-window.Vue = __webpack_require__(6);
 
-Vue.component('example', __webpack_require__(5));
-Vue.component('app', __webpack_require__(4));
+$(window).on('LoadVueComponents', function() {
+    // Initialization
+    window._ = __webpack_require__(3);
+    window.Vue = __webpack_require__(6);
 
-// Initialize Vue app
-new Vue({
-    el: '#app'
+    Vue.component('example', __webpack_require__(5));
+    Vue.component('app', __webpack_require__(4));
+
+    // Initialize Vue app
+    new Vue({
+        el: '#app'
+    })
 })
+
 
 /***/ }
 /******/ ]);
