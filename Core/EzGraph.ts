@@ -3,28 +3,31 @@ import Graph from './Graph'
 import Node from './Node'
 import NodeLinker from './NodeLinker'
 import GraphColorator from '../Algorithms/ColorationAlgorithm/GraphColorator'
+import Cytoscape from './Graphics/CytoscapeWrapper'
+
 export default {
-    Edge, Graph, Node, NodeLinker, GraphColorator,
-    sampleGraph() {
-        let graph = new Graph();
+    Edge, Graph, Node, NodeLinker, GraphColorator, sampleGraph, Cytoscape
+}
 
-        let A = new Node("A");
-        let B = new Node("B");
-        let C = new Node("C");
-        let D = new Node("D");
-        let E = new Node("E");
-        let F = new Node("F");
-        let G = new Node("G");
-        let H = new Node("H");
-        let Y = new Node("Y");
-        let Z = new Node("Z");
+function sampleGraph() {
+    let graph = new Graph();
 
-        graph.link(A).to(Z).to(Y).to(B).to(C);
-        graph.link(B).to(D).to(E).to(F);
-        graph.link(C).to(Y).to(D).to(G);
-        graph.link(D).to(E).to(G);
-        graph.link(E).to(F).to(H);
-        graph.link(G).to(Y).to(H);
-        return graph;
-    }
+    let A = new Node("A");
+    let B = new Node("B");
+    let C = new Node("C");
+    let D = new Node("D");
+    let E = new Node("E");
+    let F = new Node("F");
+    let G = new Node("G");
+    let H = new Node("H");
+    let Y = new Node("Y");
+    let Z = new Node("Z");
+
+    graph.link(A).to(Z).to(Y).to(B).to(C);
+    graph.link(B).to(D).to(E).to(F);
+    graph.link(C).to(Y).to(D).to(G);
+    graph.link(D).to(E).to(G);
+    graph.link(E).to(F).to(H);
+    graph.link(G).to(Y).to(H);
+    return graph;
 }

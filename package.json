@@ -9,6 +9,7 @@
   "author": "Ahmed Moalla",
   "license": "ISC",
   "dependencies": {
+    "cytoscape": "^2.7.14",
     "vue": "^2.1.10"
   },
   "devDependencies": {

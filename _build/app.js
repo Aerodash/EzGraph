@@ -188,10 +188,133 @@ System.register("Algorithms/ColorationAlgorithm/GraphColorator", ["Core/Graph"],
         }
     };
 });
-System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/NodeLinker", "Algorithms/ColorationAlgorithm/GraphColorator"], function (exports_6, context_6) {
+System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape"], function (exports_6, context_6) {
     "use strict";
     var __moduleName = context_6 && context_6.id;
-    var Edge_2, Graph_2, Node_1, NodeLinker_2, GraphColorator_1;
+    var cytoscape_1, CytoscapeWrapper;
+    return {
+        setters: [
+            function (cytoscape_1_1) {
+                cytoscape_1 = cytoscape_1_1;
+            }
+        ],
+        execute: function () {
+            CytoscapeWrapper = (function () {
+                function CytoscapeWrapper() {
+                }
+                CytoscapeWrapper.create = function (opts) {
+                    return cytoscape_1["default"](opts);
+                };
+                CytoscapeWrapper.createFromGraph = function (graph, container, opts) {
+                    if (!opts)
+                        opts = {
+                            boxSelectionEnabled: false,
+                            autounselectify: true,
+                            layout: {
+                                name: 'circle'
+                            }
+                        };
+                    if (!opts.elements)
+                        opts.elements = CytoscapeWrapper.getCytoscapeElements(graph);
+                    if (!opts.style)
+                        opts.style = CytoscapeWrapper.getCytoscapeStyles(graph);
+                    opts.container = container;
+                    return cytoscape_1["default"](opts);
+                };
+                CytoscapeWrapper.getCytoscapeElements = function (graph) {
+                    var nodes = this.getCytoscapeNodes(graph), edges = this.getCytoscapeEdges(graph);
+                    return nodes.concat(edges);
+                };
+                CytoscapeWrapper.getCytoscapeNodes = function (graph) {
+                    var nodes = [];
+                    for (var _i = 0, _a = graph.nodes; _i < _a.length; _i++) {
+                        var node = _a[_i];
+                        nodes.push({
+                            data: {
+                                id: node.id,
+                                name: node.id
+                            }
+                        });
+                    }
+                    return nodes;
+                };
+                CytoscapeWrapper.getCytoscapeEdges = function (graph) {
+                    var edges = [], id = 1;
+                    for (var _i = 0, _a = graph.edges; _i < _a.length; _i++) {
+                        var edge = _a[_i];
+                        edges.push({
+                            data: {
+                                id: id,
+                                source: edge.fromNode.id,
+                                target: edge.toNode.id
+                            }
+                        });
+                        id++;
+                    }
+                    return edges;
+                };
+                CytoscapeWrapper.getCytoscapeStyles = function (graph) {
+                    var styles = [{
+                            selector: 'node',
+                            style: {
+                                'background-color': 'grey',
+                                labelValign: 'middle',
+                                'content': 'data(name)'
+                            }
+                        },
+                        {
+                            selector: 'edge',
+                            style: {
+                                'width': 3,
+                                'line-color': 'lightgrey'
+                            }
+                        }
+                    ];
+                    for (var _i = 0, _a = graph.nodes; _i < _a.length; _i++) {
+                        var node = _a[_i];
+                        if (node.color) {
+                            styles.push({
+                                selector: '#' + node.id,
+                                style: {
+                                    'background-color': node.color
+                                }
+                            });
+                        }
+                        else
+                            break;
+                    }
+                    return styles;
+                };
+                return CytoscapeWrapper;
+            }());
+            exports_6("default", CytoscapeWrapper);
+        }
+    };
+});
+System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/NodeLinker", "Algorithms/ColorationAlgorithm/GraphColorator", "Core/Graphics/CytoscapeWrapper"], function (exports_7, context_7) {
+    "use strict";
+    var __moduleName = context_7 && context_7.id;
+    function sampleGraph() {
+        var graph = new Graph_2["default"]();
+        var A = new Node_1["default"]("A");
+        var B = new Node_1["default"]("B");
+        var C = new Node_1["default"]("C");
+        var D = new Node_1["default"]("D");
+        var E = new Node_1["default"]("E");
+        var F = new Node_1["default"]("F");
+        var G = new Node_1["default"]("G");
+        var H = new Node_1["default"]("H");
+        var Y = new Node_1["default"]("Y");
+        var Z = new Node_1["default"]("Z");
+        graph.link(A).to(Z).to(Y).to(B).to(C);
+        graph.link(B).to(D).to(E).to(F);
+        graph.link(C).to(Y).to(D).to(G);
+        graph.link(D).to(E).to(G);
+        graph.link(E).to(F).to(H);
+        graph.link(G).to(Y).to(H);
+        return graph;
+    }
+    var Edge_2, Graph_2, Node_1, NodeLinker_2, GraphColorator_1, CytoscapeWrapper_1;
     return {
         setters: [
             function (Edge_2_1) {
@@ -208,38 +331,21 @@ System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/N
             },
             function (GraphColorator_1_1) {
                 GraphColorator_1 = GraphColorator_1_1;
+            },
+            function (CytoscapeWrapper_1_1) {
+                CytoscapeWrapper_1 = CytoscapeWrapper_1_1;
             }
         ],
         execute: function () {
-            exports_6("default", {
-                Edge: Edge_2["default"], Graph: Graph_2["default"], Node: Node_1["default"], NodeLinker: NodeLinker_2["default"], GraphColorator: GraphColorator_1["default"],
-                sampleGraph: function () {
-                    var graph = new Graph_2["default"]();
-                    var A = new Node_1["default"]("A");
-                    var B = new Node_1["default"]("B");
-                    var C = new Node_1["default"]("C");
-                    var D = new Node_1["default"]("D");
-                    var E = new Node_1["default"]("E");
-                    var F = new Node_1["default"]("F");
-                    var G = new Node_1["default"]("G");
-                    var H = new Node_1["default"]("H");
-                    var Y = new Node_1["default"]("Y");
-                    var Z = new Node_1["default"]("Z");
-                    graph.link(A).to(Z).to(Y).to(B).to(C);
-                    graph.link(B).to(D).to(E).to(F);
-                    graph.link(C).to(Y).to(D).to(G);
-                    graph.link(D).to(E).to(G);
-                    graph.link(E).to(F).to(H);
-                    graph.link(G).to(Y).to(H);
-                    return graph;
-                }
+            exports_7("default", {
+                Edge: Edge_2["default"], Graph: Graph_2["default"], Node: Node_1["default"], NodeLinker: NodeLinker_2["default"], GraphColorator: GraphColorator_1["default"], sampleGraph: sampleGraph, Cytoscape: CytoscapeWrapper_1["default"]
             });
         }
     };
 });
-System.register("Test/Main", ["Core/Graph", "Core/Node", "Algorithms/ColorationAlgorithm/GraphColorator"], function (exports_7, context_7) {
+System.register("Test/Main", ["Core/Graph", "Core/Node", "Algorithms/ColorationAlgorithm/GraphColorator"], function (exports_8, context_8) {
     "use strict";
-    var __moduleName = context_7 && context_7.id;
+    var __moduleName = context_8 && context_8.id;
     var Graph_3, Node_2, GraphColorator_2, graph, A, B, C, D, E, F, G, H, Y, Z;
     return {
         setters: [
@@ -276,9 +382,9 @@ System.register("Test/Main", ["Core/Graph", "Core/Node", "Algorithms/ColorationA
         }
     };
 });
-System.register("Utils/NodeConstants", ["Core/Node"], function (exports_8, context_8) {
+System.register("Utils/NodeConstants", ["Core/Node"], function (exports_9, context_9) {
     "use strict";
-    var __moduleName = context_8 && context_8.id;
+    var __moduleName = context_9 && context_9.id;
     var Node_3, A, B, C, D, E, F, G, H, Y, Z;
     return {
         setters: [

@@ -6,11 +6,11 @@ export default class Graph {
     nodes: Node[] = [];
     edges: Edge[] = [];
 
-    link(node: Node) {
+    link(node: Node): NodeLinker {
         return new NodeLinker(node, this);
     }
 
-    addEdge(edge: Edge) {
+    addEdge(edge: Edge): void {
         this.edges.push(edge);
         if (!this.nodeExists(edge.fromNode)) this.nodes.push(edge.fromNode);
         if (!this.nodeExists(edge.toNode)) this.nodes.push(edge.toNode);
@@ -32,7 +32,7 @@ export default class Graph {
         return null;
     }
 
-    areNodesAdjacent(nodeA: Node, nodeB: Node) {
+    areNodesAdjacent(nodeA: Node, nodeB: Node): boolean {
         for (let e of this.edges) {
             if ((e.fromNode.equals(nodeA) && e.toNode.equals(nodeB)) || (e.fromNode.equals(nodeB) && e.toNode.equals(nodeA))) {
                 return true;
