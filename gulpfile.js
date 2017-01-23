@@ -1,3 +1,4 @@
+process.env.DISABLE_NOTIFIER = true;
 const elixir = require('laravel-elixir');
 var gulp = require("gulp");
 var shell = require("gulp-shell");
