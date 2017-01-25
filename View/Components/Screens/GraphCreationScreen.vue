@@ -1,6 +1,7 @@
 <template>
     <div>
-        Graph creation
+        <span v-for="i in 100">Graph creation<br></span>
+        
     </div>
 </template>
 <script>

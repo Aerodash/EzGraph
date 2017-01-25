@@ -1,14 +1,16 @@
 <template>
-    <div class="tabs is-toggle columns is-multiline is-success">
-        <ul class="tabs-elements">
-            <li v-for="tab in tabs" :class="{ 'is-active': tab.active }" @click="activate(tab)">
-                <a>
-                    <span class="icon is-small"><i :class="tab.icon"></i></span>
-                    <span>{{ tab.label }}</span>
-                </a>
-            </li>
-        </ul>
-        <div class="column is-12 tabs-content">
+    <div style="height: inherit;" ref="root">
+        <div :id="uuid" class="tabs is-toggle columns is-multiline is-success" ref="tabsElements">
+            <ul class="tabs-elements">
+                <li v-for="tab in tabs" :class="{ 'is-active': tab.active }" @click="activate(tab)">
+                    <a>
+                        <span class="icon is-small"><i :class="tab.icon"></i></span>
+                        <span>{{ tab.label }}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="column is-12 tabs-content" ref="tabsContent">
             <slot></slot>
         </div>
     </div>
@@ -58,4 +60,5 @@
         padding-left: 20px;
         padding-right: 30px;
     }
+    
 </style>

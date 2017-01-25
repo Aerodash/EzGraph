@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <section class="hero is-medium is-primary">
+    <div style="height: 100%">
+        <section class="hero is-medium is-primary" ref="hero">
             <div class="hero-body">
                 <div class="container">
                     <h1 class="title">
@@ -9,8 +9,8 @@
                 </div>
             </div>
         </section>
-        <div class="tabs-container">
-            <ez-tabs :active-tab-index="2">
+        <div class="tabs-container" ref="tabsContainer">
+            <ez-tabs :active-tab-index="2" ref="tabs">
                 <ez-tab label="Recent" icon="ellipsis-h">
                     <ez-recent-graphs-screen></ez-recent-graphs-screen>
                 </ez-tab>
@@ -36,6 +36,17 @@
             }
         },
         mounted() {
+            let height = $(window).height() - $(this.$refs.hero).height();
+            $(this.$refs.tabsContainer).height(height);
+
+            // Set tabs content height;
+            let tabs = this.$refs.tabs
+            let $tabsContent = $(tabs.$refs.tabsContent);
+            let $tabsElementsHeight = 57;
+            height = $(window).height() - $tabsElementsHeight - $(this.$refs.hero).height();
+            $tabsContent.css('height', height);
+            $tabsContent.css('overflow-y', 'scroll');
+            
             console.log('Menu Component mounted.')
         }
     }

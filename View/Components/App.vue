@@ -1,7 +1,7 @@
 <template>
     <div class="columns is-marginless">
         <div class="column is-8 is-paddingless">
-            <h1>{{ currentGraph.title }}</h1>
+            <h1>{{currentGraphTitle}}</h1>
             <ez-graph :graph="currentGraph"></ez-graph>
         </div>
         <div class="column is-4 is-paddingless" v-show="!isCreatingGraph">
@@ -18,9 +18,19 @@
             return {
                 logoGraph: EzGraph.logoGraph(),
                 currentGraph: {
-                    title: 'New graph'
+                    title: 'New graph',
+                    nodes: [],
+                    edges: []
                 },
                 isCreatingGraph: false
+            }
+        },
+        computed: {
+            currentGraphTitle() {
+                if (this.isCreatingGraph)
+                    return this.currentGraph.title + ' (' + this.currentGraph.nodes.length + ' Nodes, ' + this.currentGraph.edges.length + ' Edges)'
+                else 
+                    return '';
             }
         },
         mounted() {

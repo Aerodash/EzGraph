@@ -11,3 +11,29 @@
 body {
     font-family: Roboto;
 }
+
+
+/* Scrollbar */
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+
+/* Track */
+
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+}
+
+
+/* Handle */
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #cccccc;
+}
+
+::-webkit-scrollbar-thumb:window-inactive {
+    background: #aaaaaa;
+}

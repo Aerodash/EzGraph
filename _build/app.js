@@ -15370,9 +15370,19 @@ UUID.create = function create () {
         return {
             logoGraph: EzGraph.logoGraph(),
             currentGraph: {
-                title: 'New graph'
+                title: 'New graph',
+                nodes: [],
+                edges: []
             },
             isCreatingGraph: false
+        }
+    },
+    computed: {
+        currentGraphTitle: function currentGraphTitle() {
+            if (this.isCreatingGraph)
+                return this.currentGraph.title + ' (' + this.currentGraph.nodes.length + ' Nodes, ' + this.currentGraph.edges.length + ' Edges)'
+            else 
+                return '';
         }
     },
     mounted: function mounted() {
@@ -15488,8 +15498,21 @@ UUID.create = function create () {
             return this.graph.title == '' || this.graph.title == undefined ? '' : ' - ' + this.graph.title;
         }
     },
-    mounted: function mounted() {
-        console.log('Creation Menu Component mounted.')
+    updated: function updated() {
+        console.log("Updated !");
+        if (this.$parent.$data.isCreatingGraph) { // If creation mode
+            var height = $(window).height() - $(this.$refs.hero).height();
+            $(this.$refs.tabsContainer).height(height);
+            
+            // Set tabs content height;
+            var tabs = this.$refs.tabs
+            var $tabsContent = $(tabs.$refs.tabsContent);
+            var $tabsElementsHeight = 57;
+            height = $(window).height() - $tabsElementsHeight - $(this.$refs.hero).height();
+            $tabsContent.css('height', height);
+            $tabsContent.css('overflow-y', 'scroll');
+            console.log(height)
+        }
     }
 };
 
@@ -15537,6 +15560,17 @@ UUID.create = function create () {
         }
     },
     mounted: function mounted() {
+        var height = $(window).height() - $(this.$refs.hero).height();
+        $(this.$refs.tabsContainer).height(height);
+
+        // Set tabs content height;
+        var tabs = this.$refs.tabs
+        var $tabsContent = $(tabs.$refs.tabsContent);
+        var $tabsElementsHeight = 57;
+        height = $(window).height() - $tabsElementsHeight - $(this.$refs.hero).height();
+        $tabsContent.css('height', height);
+        $tabsContent.css('overflow-y', 'scroll');
+        
         console.log('Menu Component mounted.')
     }
 };
@@ -15595,6 +15629,7 @@ UUID.create = function create () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
+//
 //
 //
 //
@@ -15804,6 +15839,8 @@ UUID.create = function create () {
 //
 //
 //
+//
+//
 
 
 
@@ -15875,7 +15912,7 @@ exports = module.exports = __webpack_require__(0)();
 
 
 // module
-exports.push([module.i, "\n.tabs-elements[data-v-46f562c8] {\n    margin-left: auto;\n    margin-right: auto;\n    flex-grow: 0;\n    padding-top: 10px;\n}\n.tabs-content[data-v-46f562c8] {\n    padding-left: 20px;\n    padding-right: 30px;\n}\n", ""]);
+exports.push([module.i, "\n.tabs-elements[data-v-46f562c8] {\n    margin-left: auto;\n    margin-right: auto;\n    flex-grow: 0;\n    padding-top: 10px;\n}\n.tabs-content[data-v-46f562c8] {\n    padding-left: 20px;\n    padding-right: 30px;\n}\n\n", ""]);
 
 // exports
 
@@ -16003,7 +16040,9 @@ if (false) {
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_vm._v("\n    Graph creation\n")])
+  return _c('div', _vm._l((100), function(i) {
+    return _c('span', [_vm._v("Graph creation"), _c('br')])
+  }))
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
@@ -16019,7 +16058,16 @@ if (false) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
-    staticClass: "tabs is-toggle columns is-multiline is-success"
+    ref: "root",
+    staticStyle: {
+      "height": "inherit"
+    }
+  }, [_c('div', {
+    ref: "tabsElements",
+    staticClass: "tabs is-toggle columns is-multiline is-success",
+    attrs: {
+      "id": _vm.uuid
+    }
   }, [_c('ul', {
     staticClass: "tabs-elements"
   }, _vm._l((_vm.tabs), function(tab) {
@@ -16037,7 +16085,8 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }, [_c('i', {
       class: tab.icon
     })]), _vm._v(" "), _c('span', [_vm._v(_vm._s(tab.label))])])])
-  })), _vm._v(" "), _c('div', {
+  }))]), _vm._v(" "), _c('div', {
+    ref: "tabsContent",
     staticClass: "column is-12 tabs-content"
   }, [_vm._t("default")], 2)])
 },staticRenderFns: []}
@@ -16054,7 +16103,12 @@ if (false) {
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('section', {
+  return _c('div', {
+    staticStyle: {
+      "height": "100%"
+    }
+  }, [_c('section', {
+    ref: "hero",
     staticClass: "hero is-medium is-primary"
   }, [_c('div', {
     staticClass: "hero-body"
@@ -16065,8 +16119,10 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_vm._v("\n                    EzGraph"), _c('span', {
     staticClass: "graph-title"
   }, [_vm._v(_vm._s(_vm.currentGraphTitle))])])])])]), _vm._v(" "), _c('div', {
+    ref: "tabsContainer",
     staticClass: "tabs-container"
   }, [_c('ez-tabs', {
+    ref: "tabs",
     attrs: {
       "active-tab-index": 2
     }
@@ -16113,7 +16169,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "columns is-marginless"
   }, [_c('div', {
     staticClass: "column is-8 is-paddingless"
-  }, [_c('h1', [_vm._v(_vm._s(_vm.currentGraph.title))]), _vm._v(" "), _c('ez-graph', {
+  }, [_c('h1', [_vm._v(_vm._s(_vm.currentGraphTitle))]), _vm._v(" "), _c('ez-graph', {
     attrs: {
       "graph": _vm.currentGraph
     }
@@ -16171,7 +16227,12 @@ if (false) {
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('section', {
+  return _c('div', {
+    staticStyle: {
+      "height": "100%"
+    }
+  }, [_c('section', {
+    ref: "hero",
     staticClass: "hero is-medium is-primary"
   }, [_c('div', {
     staticClass: "hero-body"
@@ -16182,8 +16243,11 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_vm._v("\n                    EzGraph"), _c('span', {
     staticClass: "graph-title"
   }, [_vm._v(_vm._s(_vm.currentGraphTitle))])])])])]), _vm._v(" "), _c('div', {
+    ref: "tabsContainer",
     staticClass: "tabs-container"
-  }, [_c('ez-tabs', [_c('ez-tab', {
+  }, [_c('ez-tabs', {
+    ref: "tabs"
+  }, [_c('ez-tab', {
     attrs: {
       "label": "Creation",
       "icon": "edit"
