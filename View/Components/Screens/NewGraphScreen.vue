@@ -27,7 +27,11 @@
 </template>
 <script>
     export default {
-        props: ['graph'],
+        data() {
+            return {
+                graph: {title: ''}
+            }
+        },
         methods: {
             changeNodesColor(e) {
                 let newColor = e.target.value;
@@ -54,11 +58,16 @@
                 cy.style().fromJson(oldStyle).update();
             },
             enterCreationMode(e) {
-                console.log($(e.target).serializeArray());
+                let values = $(e.target).serializeArray();
+                let value = (key) => values.find(e => e.name == key).value;
+                
+                // Tell app component to create a new graph and entre creation mode
+                Event.fire('ez-createGraph', {
+                    title: value('graphTitle'),
+                    nodesColor: value('nodesColor'),
+                    edgesColor: value('edgesColor')
+                });
             }
-        },
-        mounted() {
-            console.log('Component mounted.')
         }
     }
 </script>

@@ -14,11 +14,15 @@
     </div>
 </template>
 <script>
+    import UUID from '../Utils/UUID';
+
     export default {
         props: ['activeTabIndex'],
         data() {
             return {
-                tabs: []
+                uuid: UUID.create(),
+                tabs: [],
+                tabsInitialized: false
             }
         },
         methods: {
@@ -27,15 +31,17 @@
                     if (t.label == tab.label) t.active = true;
                     else t.active = false;
                 });
-                Event.fire('ez-activateTab', tab);
+                Event.fire('ez-activateTab.' + this.uuid, tab);
             }
         },
         watch: {
             tabs(newTabs) {
+                if (this.tabsInitialized) return;
                 if (!this.activeTabIndex || this.activeTabIndex > newTabs.length - 1)
                     this.activate(newTabs[0]);
                 else
                     this.activate(newTabs[this.activeTabIndex]);
+                this.tabsInitialized = true;
             }
         }
     }

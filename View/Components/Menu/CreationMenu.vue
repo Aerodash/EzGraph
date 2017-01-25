@@ -10,18 +10,12 @@
             </div>
         </section>
         <div class="tabs-container">
-            <ez-tabs :active-tab-index="2">
-                <ez-tab label="Recent" icon="ellipsis-h">
-                    <ez-recent-graphs-screen></ez-recent-graphs-screen>
+            <ez-tabs>
+                <ez-tab label="Creation" icon="edit">
+                    <ez-graph-creation-screen></ez-graph-creation-screen>
                 </ez-tab>
-                <ez-tab label="Open" icon="folder-open">
-                    <ez-open-graph-screen></ez-open-graph-screen>
-                </ez-tab>
-                <ez-tab label="New" icon="plus-circle">
-                    <ez-new-graph-screen :graph="graph"></ez-new-graph-screen>
-                </ez-tab>
-                <ez-tab label="Help" icon="question-circle">
-                    <ez-help-screen></ez-help-screen>
+                <ez-tab label="Algorithms" icon="refresh">
+                    <ez-algorithms-screen></ez-algorithms-screen>
                 </ez-tab>
             </ez-tabs>
         </div>
@@ -36,7 +30,7 @@
             }
         },
         mounted() {
-            console.log('Menu Component mounted.')
+            console.log('Creation Menu Component mounted.')
         }
     }
 </script>

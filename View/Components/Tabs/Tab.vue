@@ -8,7 +8,8 @@
         props: ['label', 'icon'],
         data() {
             return {
-                active: false
+                active: false,
+                parentUUID: this.$parent.$data.uuid
             }
         },
         computed: {
@@ -17,11 +18,13 @@
             }
         },
         mounted() {
-            Event.listen('ez-activateTab', (tab) => {
-                if (this.label === tab.label)
+            Event.listen('ez-activateTab.' + this.parentUUID, (tab) => {
+                if (this.label === tab.label) {
                     this.active = true;
-                else
+                } else {
                     this.active = false;
+                }
+                
             });
         },
         created() {

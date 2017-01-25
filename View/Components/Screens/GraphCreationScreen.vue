@@ -1,6 +1,6 @@
 <template>
     <div>
-        Open graph
+        Graph creation
     </div>
 </template>
 <script>

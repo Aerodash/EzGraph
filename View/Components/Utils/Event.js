@@ -1,10 +1,11 @@
-
+let debug = false;
 export default class Event {
     constructor() {
         this.vue = new Vue();
     }
 
     fire(event, data = null) {
+        if (debug) console.log('[Event] "' + event + '" event was fired ! Data : ', JSON.stringify(data));
         this.vue.$emit(event, data);
         return this;
     }

@@ -13,8 +13,9 @@ $(window).on('LoadVueComponents', function() {
     Vue.component('ez-graph', require('./Graph.vue'));
 
     // Menu component
-    Vue.component('ez-menu', require('./Menu/Menu.vue'));
+    Vue.component('ez-main-menu', require('./Menu/Menu.vue'));
     Vue.component('ez-menu-footer', require('./Menu/MenuFooter.vue'));
+    Vue.component('ez-creation-menu', require('./Menu/CreationMenu.vue'));
 
     //Tab component
     Vue.component('ez-tabs', require('./Tabs/Tabs.vue'));
@@ -26,6 +27,7 @@ $(window).on('LoadVueComponents', function() {
     Vue.component('ez-recent-graphs-screen', require('./Screens/RecentGraphsScreen.vue'));
     Vue.component('ez-algorithms-screen', require('./Screens/AlgorithmsScreen.vue'));
     Vue.component('ez-help-screen', require('./Screens/HelpScreen.vue'));
+    Vue.component('ez-graph-creation-screen', require('./Screens/GraphCreationScreen.vue'));
 
 
     // Initialize Vue app
