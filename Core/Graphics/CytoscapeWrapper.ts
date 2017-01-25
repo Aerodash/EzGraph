@@ -10,7 +10,7 @@ export default class CytoscapeWrapper {
     }
 
     static createFromGraph(graph: Graph, container: HTMLElement, opts?: Cy.CytoscapeOptions): Cy.Instance {
-        if (!opts) 
+        if (!opts)
             opts = {
                 boxSelectionEnabled: false,
                 autounselectify: true,
@@ -60,22 +60,7 @@ export default class CytoscapeWrapper {
     }
 
     static getCytoscapeStyles(graph: Graph): any[] {
-        let styles: any[] = [{
-            selector: 'node',
-            style: {
-                'background-color': 'grey',
-                labelValign: 'middle',
-                'content': 'data(name)'
-            }
-        },
-        {
-            selector: 'edge',
-            style: {
-                'width': 3,
-                'line-color': 'lightgrey'
-            }
-        }
-        ];
+        let styles: any[] = [this.defaultNodesStyle(), this.defaultEdgesStyle()];
         for (let node of graph.nodes) {
             if (node.color) {
                 styles.push({
@@ -87,5 +72,26 @@ export default class CytoscapeWrapper {
             } else break;
         }
         return styles;
+    }
+
+    static defaultNodesStyle() {
+        return {
+            selector: 'node',
+            style: {
+                'background-color': 'grey',
+                labelValign: 'middle',
+                'content': 'data(name)'
+            }
+        };
+    }
+
+    static defaultEdgesStyle() {
+        return {
+            selector: 'edge',
+            style: {
+                'width': 3,
+                'line-color': 'lightgrey'
+            }
+        };
     }
 }

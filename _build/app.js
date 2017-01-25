@@ -1,3 +1,8 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 System.register("Core/Node", [], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
@@ -88,6 +93,7 @@ System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_
                 function Graph() {
                     this.nodes = [];
                     this.edges = [];
+                    this.title = 'New graph';
                 }
                 Graph.prototype.link = function (node) {
                     return new NodeLinker_1["default"](node, this);
@@ -124,20 +130,44 @@ System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_
                     }
                     return false;
                 };
+                Graph.prototype.apply = function (algorithm) {
+                    algorithm.graph = this;
+                    return algorithm.apply();
+                };
                 return Graph;
             }());
             exports_4("default", Graph);
         }
     };
 });
-System.register("Algorithms/ColorationAlgorithm/GraphColorator", ["Core/Graph"], function (exports_5, context_5) {
+System.register("Algorithms/Algorithm", [], function (exports_5, context_5) {
     "use strict";
     var __moduleName = context_5 && context_5.id;
-    var Graph_1, BLUE, RED, GREEN, YELLOW, COLORS, GraphColorator;
+    var Algorithm;
+    return {
+        setters: [],
+        execute: function () {
+            Algorithm = (function () {
+                function Algorithm(graph) {
+                    this.graph = graph;
+                }
+                return Algorithm;
+            }());
+            exports_5("default", Algorithm);
+        }
+    };
+});
+System.register("Algorithms/ColorationAlgorithm/GraphColoration", ["Core/Graph", "Algorithms/Algorithm"], function (exports_6, context_6) {
+    "use strict";
+    var __moduleName = context_6 && context_6.id;
+    var Graph_1, Algorithm_1, BLUE, RED, GREEN, YELLOW, COLORS, GraphColoration;
     return {
         setters: [
             function (Graph_1_1) {
                 Graph_1 = Graph_1_1;
+            },
+            function (Algorithm_1_1) {
+                Algorithm_1 = Algorithm_1_1;
             }
         ],
         execute: function () {
@@ -146,12 +176,12 @@ System.register("Algorithms/ColorationAlgorithm/GraphColorator", ["Core/Graph"],
             GREEN = 'lightgreen';
             YELLOW = 'yellow';
             COLORS = [BLUE, RED, GREEN, YELLOW];
-            GraphColorator = (function () {
-                function GraphColorator(graph) {
-                    this.graph = graph;
-                    2;
+            GraphColoration = (function (_super) {
+                __extends(GraphColoration, _super);
+                function GraphColoration(graph) {
+                    return _super.call(this, graph) || this;
                 }
-                GraphColorator.prototype.color = function () {
+                GraphColoration.prototype.apply = function () {
                     var _this = this;
                     var sortedNodes = this.graph.nodes.sort(function (n1, n2) {
                         return n2.degree - n1.degree;
@@ -182,15 +212,15 @@ System.register("Algorithms/ColorationAlgorithm/GraphColorator", ["Core/Graph"],
                     coloredGraph.edges = this.graph.edges;
                     return coloredGraph;
                 };
-                return GraphColorator;
-            }());
-            exports_5("default", GraphColorator);
+                return GraphColoration;
+            }(Algorithm_1["default"]));
+            exports_6("default", GraphColoration);
         }
     };
 });
-System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape"], function (exports_6, context_6) {
+System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape"], function (exports_7, context_7) {
     "use strict";
-    var __moduleName = context_6 && context_6.id;
+    var __moduleName = context_7 && context_7.id;
     var cytoscape_1, CytoscapeWrapper;
     return {
         setters: [
@@ -254,22 +284,7 @@ System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape"], function (expor
                     return edges;
                 };
                 CytoscapeWrapper.getCytoscapeStyles = function (graph) {
-                    var styles = [{
-                            selector: 'node',
-                            style: {
-                                'background-color': 'grey',
-                                labelValign: 'middle',
-                                'content': 'data(name)'
-                            }
-                        },
-                        {
-                            selector: 'edge',
-                            style: {
-                                'width': 3,
-                                'line-color': 'lightgrey'
-                            }
-                        }
-                    ];
+                    var styles = [this.defaultNodesStyle(), this.defaultEdgesStyle()];
                     for (var _i = 0, _a = graph.nodes; _i < _a.length; _i++) {
                         var node = _a[_i];
                         if (node.color) {
@@ -285,15 +300,34 @@ System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape"], function (expor
                     }
                     return styles;
                 };
+                CytoscapeWrapper.defaultNodesStyle = function () {
+                    return {
+                        selector: 'node',
+                        style: {
+                            'background-color': 'grey',
+                            labelValign: 'middle',
+                            'content': 'data(name)'
+                        }
+                    };
+                };
+                CytoscapeWrapper.defaultEdgesStyle = function () {
+                    return {
+                        selector: 'edge',
+                        style: {
+                            'width': 3,
+                            'line-color': 'lightgrey'
+                        }
+                    };
+                };
                 return CytoscapeWrapper;
             }());
-            exports_6("default", CytoscapeWrapper);
+            exports_7("default", CytoscapeWrapper);
         }
     };
 });
-System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/NodeLinker", "Algorithms/ColorationAlgorithm/GraphColorator", "Core/Graphics/CytoscapeWrapper"], function (exports_7, context_7) {
+System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/NodeLinker", "Algorithms/ColorationAlgorithm/GraphColoration", "Core/Graphics/CytoscapeWrapper"], function (exports_8, context_8) {
     "use strict";
-    var __moduleName = context_7 && context_7.id;
+    var __moduleName = context_8 && context_8.id;
     function sampleGraph() {
         var graph = new Graph_2["default"]();
         var A = new Node_1["default"]("A");
@@ -314,7 +348,10 @@ System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/N
         graph.link(G).to(Y).to(H);
         return graph;
     }
-    var Edge_2, Graph_2, Node_1, NodeLinker_2, GraphColorator_1, CytoscapeWrapper_1;
+    function logoGraph() {
+        return sampleGraph();
+    }
+    var Edge_2, Graph_2, Node_1, NodeLinker_2, GraphColoration_1, CytoscapeWrapper_1;
     return {
         setters: [
             function (Edge_2_1) {
@@ -329,24 +366,27 @@ System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/N
             function (NodeLinker_2_1) {
                 NodeLinker_2 = NodeLinker_2_1;
             },
-            function (GraphColorator_1_1) {
-                GraphColorator_1 = GraphColorator_1_1;
+            function (GraphColoration_1_1) {
+                GraphColoration_1 = GraphColoration_1_1;
             },
             function (CytoscapeWrapper_1_1) {
                 CytoscapeWrapper_1 = CytoscapeWrapper_1_1;
             }
         ],
         execute: function () {
-            exports_7("default", {
-                Edge: Edge_2["default"], Graph: Graph_2["default"], Node: Node_1["default"], NodeLinker: NodeLinker_2["default"], GraphColorator: GraphColorator_1["default"], sampleGraph: sampleGraph, Cytoscape: CytoscapeWrapper_1["default"]
+            exports_8("default", {
+                Edge: Edge_2["default"], Graph: Graph_2["default"], Node: Node_1["default"], NodeLinker: NodeLinker_2["default"], sampleGraph: sampleGraph, logoGraph: logoGraph, Cytoscape: CytoscapeWrapper_1["default"],
+                Algorithms: {
+                    GraphColoration: GraphColoration_1["default"]
+                }
             });
         }
     };
 });
-System.register("Test/Main", ["Core/Graph", "Core/Node", "Algorithms/ColorationAlgorithm/GraphColorator"], function (exports_8, context_8) {
+System.register("Test/Main", ["Core/Graph", "Core/Node", "Algorithms/ColorationAlgorithm/GraphColoration"], function (exports_9, context_9) {
     "use strict";
-    var __moduleName = context_8 && context_8.id;
-    var Graph_3, Node_2, GraphColorator_2, graph, A, B, C, D, E, F, G, H, Y, Z;
+    var __moduleName = context_9 && context_9.id;
+    var Graph_3, Node_2, GraphColoration_2, graph, A, B, C, D, E, F, G, H, Y, Z;
     return {
         setters: [
             function (Graph_3_1) {
@@ -355,8 +395,8 @@ System.register("Test/Main", ["Core/Graph", "Core/Node", "Algorithms/ColorationA
             function (Node_2_1) {
                 Node_2 = Node_2_1;
             },
-            function (GraphColorator_2_1) {
-                GraphColorator_2 = GraphColorator_2_1;
+            function (GraphColoration_2_1) {
+                GraphColoration_2 = GraphColoration_2_1;
             }
         ],
         execute: function () {
@@ -378,13 +418,13 @@ System.register("Test/Main", ["Core/Graph", "Core/Node", "Algorithms/ColorationA
             graph.link(E).to(F).to(H);
             graph.link(G).to(Y).to(H);
             console.log(JSON.stringify(graph));
-            console.log(JSON.stringify(new GraphColorator_2["default"](graph).color()));
+            console.log(JSON.stringify(new GraphColoration_2["default"](graph).apply()));
         }
     };
 });
-System.register("Utils/NodeConstants", ["Core/Node"], function (exports_9, context_9) {
+System.register("Utils/NodeConstants", ["Core/Node"], function (exports_10, context_10) {
     "use strict";
-    var __moduleName = context_9 && context_9.id;
+    var __moduleName = context_10 && context_10.id;
     var Node_3, A, B, C, D, E, F, G, H, Y, Z;
     return {
         setters: [
@@ -470,7 +510,7 @@ System.register("Utils/NodeConstants", ["Core/Node"], function (exports_9, conte
 /******/ 	__webpack_require__.p = "";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 41);
+/******/ 	return __webpack_require__(__webpack_require__.s = 57);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -6061,7 +6101,7 @@ Event.prototype.off = function off (event) {
   }
 }(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)(module), __webpack_require__(4), __webpack_require__(2).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(56)(module), __webpack_require__(4), __webpack_require__(2).setImmediate))
 
 /***/ },
 /* 7 */
@@ -6071,13 +6111,13 @@ var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
 /* styles */
-__webpack_require__(39)
+__webpack_require__(54)
 
 /* script */
-__vue_exports__ = __webpack_require__(16)
+__vue_exports__ = __webpack_require__(20)
 
 /* template */
-var __vue_template__ = __webpack_require__(32)
+var __vue_template__ = __webpack_require__(42)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -6119,10 +6159,10 @@ var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
 /* script */
-__vue_exports__ = __webpack_require__(17)
+__vue_exports__ = __webpack_require__(21)
 
 /* template */
-var __vue_template__ = __webpack_require__(35)
+var __vue_template__ = __webpack_require__(47)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -6163,13 +6203,13 @@ var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
 /* styles */
-__webpack_require__(36)
+__webpack_require__(50)
 
 /* script */
-__vue_exports__ = __webpack_require__(18)
+__vue_exports__ = __webpack_require__(22)
 
 /* template */
-var __vue_template__ = __webpack_require__(28)
+var __vue_template__ = __webpack_require__(38)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -6210,13 +6250,13 @@ var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
 /* styles */
-__webpack_require__(38)
+__webpack_require__(53)
 
 /* script */
-__vue_exports__ = __webpack_require__(19)
+__vue_exports__ = __webpack_require__(23)
 
 /* template */
-var __vue_template__ = __webpack_require__(31)
+var __vue_template__ = __webpack_require__(41)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -6258,13 +6298,13 @@ var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
 /* styles */
-__webpack_require__(37)
+__webpack_require__(51)
 
 /* script */
-__vue_exports__ = __webpack_require__(20)
+__vue_exports__ = __webpack_require__(24)
 
 /* template */
-var __vue_template__ = __webpack_require__(29)
+var __vue_template__ = __webpack_require__(39)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -6305,14 +6345,102 @@ module.exports = __vue_exports__
 var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
-/* styles */
-__webpack_require__(43)
-
 /* script */
-__vue_exports__ = __webpack_require__(21)
+__vue_exports__ = __webpack_require__(25)
 
 /* template */
-var __vue_template__ = __webpack_require__(33)
+var __vue_template__ = __webpack_require__(48)
+__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+if (
+  typeof __vue_exports__.default === "object" ||
+  typeof __vue_exports__.default === "function"
+) {
+if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+__vue_options__ = __vue_exports__ = __vue_exports__.default
+}
+if (typeof __vue_options__ === "function") {
+  __vue_options__ = __vue_options__.options
+}
+__vue_options__.__file = "D:\\Apps\\EzGraph\\View\\Components\\Screens\\AlgorithmsScreen.vue"
+__vue_options__.render = __vue_template__.render
+__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-db083c2e", __vue_options__)
+  } else {
+    hotAPI.reload("data-v-db083c2e", __vue_options__)
+  }
+})()}
+if (__vue_options__.functional) {console.error("[vue-loader] AlgorithmsScreen.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+module.exports = __vue_exports__
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+var __vue_exports__, __vue_options__
+var __vue_styles__ = {}
+
+/* script */
+__vue_exports__ = __webpack_require__(26)
+
+/* template */
+var __vue_template__ = __webpack_require__(43)
+__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+if (
+  typeof __vue_exports__.default === "object" ||
+  typeof __vue_exports__.default === "function"
+) {
+if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+__vue_options__ = __vue_exports__ = __vue_exports__.default
+}
+if (typeof __vue_options__ === "function") {
+  __vue_options__ = __vue_options__.options
+}
+__vue_options__.__file = "D:\\Apps\\EzGraph\\View\\Components\\Screens\\HelpScreen.vue"
+__vue_options__.render = __vue_template__.render
+__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-71b443c6", __vue_options__)
+  } else {
+    hotAPI.reload("data-v-71b443c6", __vue_options__)
+  }
+})()}
+if (__vue_options__.functional) {console.error("[vue-loader] HelpScreen.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+module.exports = __vue_exports__
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+var __vue_exports__, __vue_options__
+var __vue_styles__ = {}
+
+/* styles */
+__webpack_require__(55)
+
+/* script */
+__vue_exports__ = __webpack_require__(27)
+
+/* template */
+var __vue_template__ = __webpack_require__(44)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -6347,17 +6475,105 @@ module.exports = __vue_exports__
 
 
 /***/ },
-/* 13 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
 /* script */
-__vue_exports__ = __webpack_require__(22)
+__vue_exports__ = __webpack_require__(28)
 
 /* template */
-var __vue_template__ = __webpack_require__(34)
+var __vue_template__ = __webpack_require__(49)
+__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+if (
+  typeof __vue_exports__.default === "object" ||
+  typeof __vue_exports__.default === "function"
+) {
+if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+__vue_options__ = __vue_exports__ = __vue_exports__.default
+}
+if (typeof __vue_options__ === "function") {
+  __vue_options__ = __vue_options__.options
+}
+__vue_options__.__file = "D:\\Apps\\EzGraph\\View\\Components\\Screens\\OpenGraphScreen.vue"
+__vue_options__.render = __vue_template__.render
+__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-ef066d72", __vue_options__)
+  } else {
+    hotAPI.reload("data-v-ef066d72", __vue_options__)
+  }
+})()}
+if (__vue_options__.functional) {console.error("[vue-loader] OpenGraphScreen.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+module.exports = __vue_exports__
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+var __vue_exports__, __vue_options__
+var __vue_styles__ = {}
+
+/* script */
+__vue_exports__ = __webpack_require__(29)
+
+/* template */
+var __vue_template__ = __webpack_require__(45)
+__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+if (
+  typeof __vue_exports__.default === "object" ||
+  typeof __vue_exports__.default === "function"
+) {
+if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+__vue_options__ = __vue_exports__ = __vue_exports__.default
+}
+if (typeof __vue_options__ === "function") {
+  __vue_options__ = __vue_options__.options
+}
+__vue_options__.__file = "D:\\Apps\\EzGraph\\View\\Components\\Screens\\RecentGraphsScreen.vue"
+__vue_options__.render = __vue_template__.render
+__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-a8b73836", __vue_options__)
+  } else {
+    hotAPI.reload("data-v-a8b73836", __vue_options__)
+  }
+})()}
+if (__vue_options__.functional) {console.error("[vue-loader] RecentGraphsScreen.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+module.exports = __vue_exports__
+
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+var __vue_exports__, __vue_options__
+var __vue_styles__ = {}
+
+/* script */
+__vue_exports__ = __webpack_require__(30)
+
+/* template */
+var __vue_template__ = __webpack_require__(46)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -6391,20 +6607,20 @@ module.exports = __vue_exports__
 
 
 /***/ },
-/* 14 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
 /* styles */
-__webpack_require__(45)
+__webpack_require__(52)
 
 /* script */
-__vue_exports__ = __webpack_require__(23)
+__vue_exports__ = __webpack_require__(31)
 
 /* template */
-var __vue_template__ = __webpack_require__(30)
+var __vue_template__ = __webpack_require__(40)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -6439,7 +6655,7 @@ module.exports = __vue_exports__
 
 
 /***/ },
-/* 15 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15015,7 +15231,7 @@ module.exports = Vue$3;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(4)))
 
 /***/ },
-/* 16 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15034,18 +15250,20 @@ module.exports = Vue$3;
 /* harmony default export */ exports["default"] = {
     data: function data() {
         return {
-            currentGraph: null
+            logoGraph: EzGraph.logoGraph(),
+            currentGraph: { title: 'New graph' },
+            isCreatingGraph: false
         }
     },
     mounted: function mounted() {
-        console.log('Application Component mounted.');
-        this.currentGraph = EzGraph.sampleGraph();//new GraphColorator().color();
+        this.currentGraph = this.logoGraph;
+        this.currentGraph.title = '';
     }
 };
 
 
 /***/ },
-/* 17 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15072,7 +15290,7 @@ module.exports = Vue$3;
 
 
 /***/ },
-/* 18 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15105,7 +15323,7 @@ module.exports = Vue$3;
 
 
 /***/ },
-/* 19 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15143,14 +15361,20 @@ module.exports = Vue$3;
 //
 
 /* harmony default export */ exports["default"] = {
+    props: ['graph'],
+    computed: {
+        currentGraphTitle: function currentGraphTitle() {
+            return this.graph.title == '' || this.graph.title == undefined ? '' : ' - ' + this.graph.title;
+        }
+    },
     mounted: function mounted() {
-        console.log('Component mounted.')
+        console.log('Menu Component mounted.')
     }
 };
 
 
 /***/ },
-/* 20 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15181,7 +15405,43 @@ module.exports = Vue$3;
 
 
 /***/ },
-/* 21 */
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+//
+//
+//
+//
+//
+
+/* harmony default export */ exports["default"] = {
+    mounted: function mounted() {
+        console.log('Component mounted.')
+    }
+};
+
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+//
+//
+//
+//
+//
+
+/* harmony default export */ exports["default"] = {
+    mounted: function mounted() {
+        console.log('Component mounted.')
+    }
+};
+
+
+/***/ },
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15205,6 +15465,61 @@ module.exports = Vue$3;
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ exports["default"] = {
+    props: ['graph'],
+    methods: {
+        changeNodesColor: function changeNodesColor(e) {
+            var newColor = e.target.value;
+            var oldStyle = cy.style().json();
+            for(var i = 0; i < oldStyle.length; i++) {
+                var style = oldStyle[i];
+                if (style.selector === 'node') {
+                    style.style['background-color'] = newColor;
+                    break;
+                }
+            }
+            cy.style().fromJson(oldStyle).update();
+        },
+        changeEdgesColor: function changeEdgesColor(e) {
+            var newColor = e.target.value;
+            var oldStyle = cy.style().json();
+            for(var i = 0; i < oldStyle.length; i++) {
+                var style = oldStyle[i];
+                if (style.selector === 'edge') {
+                    style.style['line-color'] = newColor;
+                    break;
+                }
+            }
+            cy.style().fromJson(oldStyle).update();
+        },
+        enterCreationMode: function enterCreationMode(e) {
+            console.log($(e.target).serializeArray());
+        }
+    },
+    mounted: function mounted() {
+        console.log('Component mounted.')
+    }
+};
+
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+//
+//
+//
+//
+//
 
 /* harmony default export */ exports["default"] = {
     mounted: function mounted() {
@@ -15214,7 +15529,25 @@ module.exports = Vue$3;
 
 
 /***/ },
-/* 22 */
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+//
+//
+//
+//
+//
+
+/* harmony default export */ exports["default"] = {
+    mounted: function mounted() {
+        console.log('Component mounted.')
+    }
+};
+
+
+/***/ },
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15257,7 +15590,7 @@ module.exports = Vue$3;
 
 
 /***/ },
-/* 23 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15305,7 +15638,7 @@ module.exports = Vue$3;
 
 
 /***/ },
-/* 24 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)();
@@ -15319,7 +15652,7 @@ exports.push([module.i, "\n#cy {\n    width: 100%;\n    height: 100%;\n}\n", ""]
 
 
 /***/ },
-/* 25 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)();
@@ -15333,7 +15666,7 @@ exports.push([module.i, "\n.footer[data-v-388487a3] {\n    position: absolute;\n
 
 
 /***/ },
-/* 26 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)();
@@ -15341,13 +15674,27 @@ exports = module.exports = __webpack_require__(0)();
 
 
 // module
-exports.push([module.i, "\nh1.title[data-v-570dd130] {\n    font-family: Roboto-Thin;\n    font-size: 60px;\n    padding-left: 10px;\n}\n.hero.is-medium .hero-body[data-v-570dd130] {\n    padding-bottom: 1rem;\n    padding-top: 7rem;\n}\n.hero[data-v-570dd130] {\n    margin-bottom: 10px;\n}\n", ""]);
+exports.push([module.i, "\n.tabs-elements[data-v-46f562c8] {\n    margin-left: auto;\n    margin-right: auto;\n    flex-grow: 0;\n    padding-top: 10px;\n}\n.tabs-content[data-v-46f562c8] {\n    padding-left: 20px;\n    padding-right: 30px;\n}\n", ""]);
 
 // exports
 
 
 /***/ },
-/* 27 */
+/* 35 */
+/***/ function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)();
+// imports
+
+
+// module
+exports.push([module.i, "\nh1.title[data-v-570dd130] {\n    font-family: Roboto-Thin;\n    font-size: 60px;\n    padding-left: 10px;\n}\n.hero.is-medium .hero-body[data-v-570dd130] {\n    padding-bottom: 1rem;\n    padding-top: 7rem;\n}\n.hero[data-v-570dd130] {\n    margin-bottom: 10px;\n}\nspan.graph-title[data-v-570dd130] {\n    font-size: 30px;\n}\n", ""]);
+
+// exports
+
+
+/***/ },
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)();
@@ -15361,7 +15708,21 @@ exports.push([module.i, "\nh1[data-v-6d92442d] {\n    opacity: 0.5;\n    font-si
 
 
 /***/ },
-/* 28 */
+/* 37 */
+/***/ function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)();
+// imports
+
+
+// module
+exports.push([module.i, "\n.small-label[data-v-95bfa95a] {\n    font-size: 12px;\n}\n", ""]);
+
+// exports
+
+
+/***/ },
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -15381,7 +15742,7 @@ if (false) {
 }
 
 /***/ },
-/* 29 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -15423,14 +15784,14 @@ if (false) {
 }
 
 /***/ },
-/* 30 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
     staticClass: "tabs is-toggle columns is-multiline is-success"
   }, [_c('ul', {
-    staticClass: "column is-12 tabs-elements"
+    staticClass: "tabs-elements"
   }, _vm._l((_vm.tabs), function(tab) {
     return _c('li', {
       class: {
@@ -15459,11 +15820,21 @@ if (false) {
 }
 
 /***/ },
-/* 31 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_vm._m(0), _vm._v(" "), _c('div', {
+  return _c('div', [_c('section', {
+    staticClass: "hero is-medium is-primary"
+  }, [_c('div', {
+    staticClass: "hero-body"
+  }, [_c('div', {
+    staticClass: "container"
+  }, [_c('h1', {
+    staticClass: "title"
+  }, [_vm._v("\n                    EzGraph"), _c('span', {
+    staticClass: "graph-title"
+  }, [_vm._v(_vm._s(_vm.currentGraphTitle))])])])])]), _vm._v(" "), _c('div', {
     staticClass: "tabs-container"
   }, [_c('ez-tabs', {
     attrs: {
@@ -15484,28 +15855,17 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "label": "New",
       "icon": "plus-circle"
     }
-  }, [_c('ez-new-graph-screen')], 1), _vm._v(" "), _c('ez-tab', {
+  }, [_c('ez-new-graph-screen', {
     attrs: {
-      "label": "Algorithms",
-      "icon": "refresh"
+      "graph": _vm.graph
     }
-  }, [_c('ez-algorithms-screen')], 1), _vm._v(" "), _c('ez-tab', {
+  })], 1), _vm._v(" "), _c('ez-tab', {
     attrs: {
       "label": "Help",
       "icon": "question-circle"
     }
   }, [_c('ez-help-screen')], 1)], 1)], 1)])
-},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('section', {
-    staticClass: "hero is-medium is-primary"
-  }, [_c('div', {
-    staticClass: "hero-body"
-  }, [_c('div', {
-    staticClass: "container"
-  }, [_c('h1', {
-    staticClass: "title"
-  }, [_vm._v("\n                    EzGraph\n                ")])])])])
-}]}
+},staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()
@@ -15515,7 +15875,7 @@ if (false) {
 }
 
 /***/ },
-/* 32 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -15523,13 +15883,17 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "columns is-marginless"
   }, [_c('div', {
     staticClass: "column is-8 is-paddingless"
-  }, [_c('h1', [_vm._v("Main application")]), _vm._v(" "), _c('ez-graph', {
+  }, [_c('h1', [_vm._v(_vm._s(_vm.currentGraph.title))]), _vm._v(" "), _c('ez-graph', {
     attrs: {
       "graph": _vm.currentGraph
     }
   })], 1), _vm._v(" "), _c('div', {
     staticClass: "column is-4 is-paddingless"
-  }, [_c('ez-menu')], 1)])
+  }, [_c('ez-menu', {
+    attrs: {
+      "graph": _vm.currentGraph
+    }
+  })], 1)])
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
@@ -15540,22 +15904,58 @@ if (false) {
 }
 
 /***/ },
-/* 33 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _vm._m(0)
-},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_vm._v("\n    Help\n")])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-71b443c6", module.exports)
+  }
+}
+
+/***/ },
+/* 44 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', [_c('h1', {
     staticClass: "title is-3"
-  }, [_vm._v("New graph")]), _vm._v(" "), _c('form', [_c('label', {
+  }, [_vm._v("New graph")]), _vm._v(" "), _c('form', {
+    on: {
+      "submit": function($event) {
+        $event.preventDefault();
+        _vm.enterCreationMode($event)
+      }
+    }
+  }, [_c('label', {
     staticClass: "label"
   }, [_vm._v("Title")]), _vm._v(" "), _c('p', {
     staticClass: "control"
   }, [_c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.graph.title),
+      expression: "graph.title"
+    }],
     staticClass: "input",
     attrs: {
-      "type": "text"
+      "type": "text",
+      "name": "graphTitle"
+    },
+    domProps: {
+      "value": _vm._s(_vm.graph.title)
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.graph.title = $event.target.value
+      }
     }
   })]), _vm._v(" "), _c('label', {
     staticClass: "label"
@@ -15567,7 +15967,11 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "input",
     attrs: {
       "type": "color",
-      "value": "#808080"
+      "value": "#808080",
+      "name": "nodesColor"
+    },
+    on: {
+      "change": _vm.changeNodesColor
     }
   })]), _vm._v(" "), _c('label', {
     staticClass: "label small-label"
@@ -15577,9 +15981,24 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "input",
     attrs: {
       "type": "color",
-      "value": "#d3d3d3"
+      "value": "#d3d3d3",
+      "name": "edgesColor"
+    },
+    on: {
+      "change": _vm.changeEdgesColor
     }
-  })])])])
+  })]), _vm._v(" "), _vm._m(0)])])
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('button', {
+    staticClass: "button is-primary pull-right",
+    attrs: {
+      "type": "submit"
+    }
+  }, [_c('span', [_vm._v("Create")]), _vm._v(" "), _c('span', {
+    staticClass: "icon is-small"
+  }, [_c('i', {
+    staticClass: "fa fa-chevron-right"
+  })])])
 }]}
 module.exports.render._withStripped = true
 if (false) {
@@ -15590,7 +16009,22 @@ if (false) {
 }
 
 /***/ },
-/* 34 */
+/* 45 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_vm._v("\n    Recent graphs\n")])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-a8b73836", module.exports)
+  }
+}
+
+/***/ },
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -15612,7 +16046,7 @@ if (false) {
 }
 
 /***/ },
-/* 35 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -15641,13 +16075,43 @@ if (false) {
 }
 
 /***/ },
-/* 36 */
+/* 48 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_vm._v("\n    Algorithms\n")])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-db083c2e", module.exports)
+  }
+}
+
+/***/ },
+/* 49 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_vm._v("\n    Open graph\n")])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-ef066d72", module.exports)
+  }
+}
+
+/***/ },
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(24);
+var content = __webpack_require__(32);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
 var update = __webpack_require__(1)(content, {});
@@ -15667,13 +16131,13 @@ if(false) {
 }
 
 /***/ },
-/* 37 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(25);
+var content = __webpack_require__(33);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
 var update = __webpack_require__(1)(content, {});
@@ -15693,13 +16157,39 @@ if(false) {
 }
 
 /***/ },
-/* 38 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(26);
+var content = __webpack_require__(34);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-46f562c8&scoped=true!./../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Tabs.vue", function() {
+			var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-46f562c8&scoped=true!./../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Tabs.vue");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ },
+/* 53 */
+/***/ function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(35);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
 var update = __webpack_require__(1)(content, {});
@@ -15719,13 +16209,13 @@ if(false) {
 }
 
 /***/ },
-/* 39 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(27);
+var content = __webpack_require__(36);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
 var update = __webpack_require__(1)(content, {});
@@ -15745,7 +16235,33 @@ if(false) {
 }
 
 /***/ },
-/* 40 */
+/* 55 */
+/***/ function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(37);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-95bfa95a&scoped=true!./../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./NewGraphScreen.vue", function() {
+			var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-95bfa95a&scoped=true!./../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./NewGraphScreen.vue");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ },
+/* 56 */
 /***/ function(module, exports) {
 
 module.exports = function(module) {
@@ -15771,14 +16287,14 @@ module.exports = function(module) {
 
 
 /***/ },
-/* 41 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 
 $(window).on('LoadVueComponents', function() {
     // Initialization
     window._ = __webpack_require__(6);
-    window.Vue = __webpack_require__(15);
+    window.Vue = __webpack_require__(19);
 
     // Event hub
     var Event = __webpack_require__(5).default;
@@ -15793,15 +16309,15 @@ $(window).on('LoadVueComponents', function() {
     Vue.component('ez-menu-footer', __webpack_require__(11));
 
     //Tab component
-    Vue.component('ez-tabs', __webpack_require__(14));
-    Vue.component('ez-tab', __webpack_require__(13));
+    Vue.component('ez-tabs', __webpack_require__(18));
+    Vue.component('ez-tab', __webpack_require__(17));
 
     //Screens
-    Vue.component('ez-new-graph-screen', __webpack_require__(12));
-    Vue.component('ez-open-graph-screen', __webpack_require__(46));
-    Vue.component('ez-recent-graphs-screen', __webpack_require__(49));
-    Vue.component('ez-algorithms-screen', __webpack_require__(52));
-    Vue.component('ez-help-screen', __webpack_require__(53));
+    Vue.component('ez-new-graph-screen', __webpack_require__(14));
+    Vue.component('ez-open-graph-screen', __webpack_require__(15));
+    Vue.component('ez-recent-graphs-screen', __webpack_require__(16));
+    Vue.component('ez-algorithms-screen', __webpack_require__(12));
+    Vue.component('ez-help-screen', __webpack_require__(13));
 
 
     // Initialize Vue app
@@ -15810,394 +16326,6 @@ $(window).on('LoadVueComponents', function() {
     })
 })
 
-
-/***/ },
-/* 42 */
-/***/ function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)();
-// imports
-
-
-// module
-exports.push([module.i, "\n.small-label[data-v-95bfa95a] {\n    font-size: 12px;\n}\n", ""]);
-
-// exports
-
-
-/***/ },
-/* 43 */
-/***/ function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(42);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(1)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-95bfa95a&scoped=true!./../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./NewGraphScreen.vue", function() {
-			var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-95bfa95a&scoped=true!./../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./NewGraphScreen.vue");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ },
-/* 44 */
-/***/ function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)();
-// imports
-
-
-// module
-exports.push([module.i, "\n.tabs-elements[data-v-46f562c8] {\n    padding-left: 31.5\n}\n.tabs-content[data-v-46f562c8] {\n    padding-left: 20px;\n    padding-right: 30px;\n}\n", ""]);
-
-// exports
-
-
-/***/ },
-/* 45 */
-/***/ function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(44);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(1)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-46f562c8&scoped=true!./../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Tabs.vue", function() {
-			var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-46f562c8&scoped=true!./../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Tabs.vue");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ },
-/* 46 */
-/***/ function(module, exports, __webpack_require__) {
-
-var __vue_exports__, __vue_options__
-var __vue_styles__ = {}
-
-/* script */
-__vue_exports__ = __webpack_require__(47)
-
-/* template */
-var __vue_template__ = __webpack_require__(48)
-__vue_options__ = __vue_exports__ = __vue_exports__ || {}
-if (
-  typeof __vue_exports__.default === "object" ||
-  typeof __vue_exports__.default === "function"
-) {
-if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
-__vue_options__ = __vue_exports__ = __vue_exports__.default
-}
-if (typeof __vue_options__ === "function") {
-  __vue_options__ = __vue_options__.options
-}
-__vue_options__.__file = "D:\\Apps\\EzGraph\\View\\Components\\Screens\\OpenGraphScreen.vue"
-__vue_options__.render = __vue_template__.render
-__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-ef066d72", __vue_options__)
-  } else {
-    hotAPI.reload("data-v-ef066d72", __vue_options__)
-  }
-})()}
-if (__vue_options__.functional) {console.error("[vue-loader] OpenGraphScreen.vue: functional components are not supported and should be defined in plain js files using render functions.")}
-
-module.exports = __vue_exports__
-
-
-/***/ },
-/* 47 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-//
-//
-//
-//
-//
-
-/* harmony default export */ exports["default"] = {
-    mounted: function mounted() {
-        console.log('Component mounted.')
-    }
-};
-
-
-/***/ },
-/* 48 */
-/***/ function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_vm._v("\n    Open graph\n")])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-ef066d72", module.exports)
-  }
-}
-
-/***/ },
-/* 49 */
-/***/ function(module, exports, __webpack_require__) {
-
-var __vue_exports__, __vue_options__
-var __vue_styles__ = {}
-
-/* script */
-__vue_exports__ = __webpack_require__(50)
-
-/* template */
-var __vue_template__ = __webpack_require__(51)
-__vue_options__ = __vue_exports__ = __vue_exports__ || {}
-if (
-  typeof __vue_exports__.default === "object" ||
-  typeof __vue_exports__.default === "function"
-) {
-if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
-__vue_options__ = __vue_exports__ = __vue_exports__.default
-}
-if (typeof __vue_options__ === "function") {
-  __vue_options__ = __vue_options__.options
-}
-__vue_options__.__file = "D:\\Apps\\EzGraph\\View\\Components\\Screens\\RecentGraphsScreen.vue"
-__vue_options__.render = __vue_template__.render
-__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-a8b73836", __vue_options__)
-  } else {
-    hotAPI.reload("data-v-a8b73836", __vue_options__)
-  }
-})()}
-if (__vue_options__.functional) {console.error("[vue-loader] RecentGraphsScreen.vue: functional components are not supported and should be defined in plain js files using render functions.")}
-
-module.exports = __vue_exports__
-
-
-/***/ },
-/* 50 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-//
-//
-//
-//
-//
-
-/* harmony default export */ exports["default"] = {
-    mounted: function mounted() {
-        console.log('Component mounted.')
-    }
-};
-
-
-/***/ },
-/* 51 */
-/***/ function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_vm._v("\n    Recent graphs\n")])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-a8b73836", module.exports)
-  }
-}
-
-/***/ },
-/* 52 */
-/***/ function(module, exports, __webpack_require__) {
-
-var __vue_exports__, __vue_options__
-var __vue_styles__ = {}
-
-/* script */
-__vue_exports__ = __webpack_require__(54)
-
-/* template */
-var __vue_template__ = __webpack_require__(57)
-__vue_options__ = __vue_exports__ = __vue_exports__ || {}
-if (
-  typeof __vue_exports__.default === "object" ||
-  typeof __vue_exports__.default === "function"
-) {
-if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
-__vue_options__ = __vue_exports__ = __vue_exports__.default
-}
-if (typeof __vue_options__ === "function") {
-  __vue_options__ = __vue_options__.options
-}
-__vue_options__.__file = "D:\\Apps\\EzGraph\\View\\Components\\Screens\\AlgorithmsScreen.vue"
-__vue_options__.render = __vue_template__.render
-__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-db083c2e", __vue_options__)
-  } else {
-    hotAPI.reload("data-v-db083c2e", __vue_options__)
-  }
-})()}
-if (__vue_options__.functional) {console.error("[vue-loader] AlgorithmsScreen.vue: functional components are not supported and should be defined in plain js files using render functions.")}
-
-module.exports = __vue_exports__
-
-
-/***/ },
-/* 53 */
-/***/ function(module, exports, __webpack_require__) {
-
-var __vue_exports__, __vue_options__
-var __vue_styles__ = {}
-
-/* script */
-__vue_exports__ = __webpack_require__(55)
-
-/* template */
-var __vue_template__ = __webpack_require__(56)
-__vue_options__ = __vue_exports__ = __vue_exports__ || {}
-if (
-  typeof __vue_exports__.default === "object" ||
-  typeof __vue_exports__.default === "function"
-) {
-if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
-__vue_options__ = __vue_exports__ = __vue_exports__.default
-}
-if (typeof __vue_options__ === "function") {
-  __vue_options__ = __vue_options__.options
-}
-__vue_options__.__file = "D:\\Apps\\EzGraph\\View\\Components\\Screens\\HelpScreen.vue"
-__vue_options__.render = __vue_template__.render
-__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-71b443c6", __vue_options__)
-  } else {
-    hotAPI.reload("data-v-71b443c6", __vue_options__)
-  }
-})()}
-if (__vue_options__.functional) {console.error("[vue-loader] HelpScreen.vue: functional components are not supported and should be defined in plain js files using render functions.")}
-
-module.exports = __vue_exports__
-
-
-/***/ },
-/* 54 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-//
-//
-//
-//
-//
-
-/* harmony default export */ exports["default"] = {
-    mounted: function mounted() {
-        console.log('Component mounted.')
-    }
-};
-
-
-/***/ },
-/* 55 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-//
-//
-//
-//
-//
-
-/* harmony default export */ exports["default"] = {
-    mounted: function mounted() {
-        console.log('Component mounted.')
-    }
-};
-
-
-/***/ },
-/* 56 */
-/***/ function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_vm._v("\n    Help\n")])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-71b443c6", module.exports)
-  }
-}
-
-/***/ },
-/* 57 */
-/***/ function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_vm._v("\n    Algorithms\n")])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-db083c2e", module.exports)
-  }
-}
 
 /***/ }
 /******/ ]);

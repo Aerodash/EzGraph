@@ -1,5 +1,6 @@
 import Graph from '../../Core/Graph';
 import Node from '../../Core/Node';
+import Algorithm from '../Algorithm';
 
 const BLUE = 'lightblue';
 const RED = 'tomato';
@@ -8,14 +9,14 @@ const YELLOW = 'yellow';
 
 const COLORS = [BLUE, RED, GREEN, YELLOW];
 
-export default class GraphColorator {
-    graph: Graph;
-    constructor(graph: Graph) {
-        this.graph = graph; 2
+export default class GraphColoration extends Algorithm {
+    
+    constructor(graph?: Graph) {
+        super(graph);
     }
 
     // Welsh Powell
-    color(): Graph {
+    apply(): Graph {
 
         // Sort the node
         let sortedNodes: Node[] = this.graph.nodes.sort((n1: Node, n2: Node) => {

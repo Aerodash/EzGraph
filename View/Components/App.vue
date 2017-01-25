@@ -1,11 +1,11 @@
 <template>
     <div class="columns is-marginless">
         <div class="column is-8 is-paddingless">
-            <h1>Main application</h1>
+            <h1>{{ currentGraph.title }}</h1>
             <ez-graph :graph="currentGraph"></ez-graph>
         </div>
         <div class="column is-4 is-paddingless">
-            <ez-menu></ez-menu>
+            <ez-menu :graph="currentGraph"></ez-menu>
         </div>
     </div>
 </template>
@@ -13,12 +13,14 @@
     export default {
         data() {
             return {
-                currentGraph: null
+                logoGraph: EzGraph.logoGraph(),
+                currentGraph: { title: 'New graph' },
+                isCreatingGraph: false
             }
         },
         mounted() {
-            console.log('Application Component mounted.');
-            this.currentGraph = EzGraph.sampleGraph();//new GraphColorator().color();
+            this.currentGraph = this.logoGraph;
+            this.currentGraph.title = '';
         }
     }
 </script>

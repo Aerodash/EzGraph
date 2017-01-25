@@ -1,10 +1,12 @@
 import Node from './Node';
 import Edge from './Edge';
 import NodeLinker from './NodeLinker';
+import Algorithm from '../Algorithms/Algorithm';
 
 export default class Graph {
     nodes: Node[] = [];
     edges: Edge[] = [];
+    title: string = 'New graph';
 
     link(node: Node): NodeLinker {
         return new NodeLinker(node, this);
@@ -39,6 +41,11 @@ export default class Graph {
             }
         }
         return false;
+    }
+
+    apply(algorithm: Algorithm): Graph {
+        algorithm.graph = this;
+        return algorithm.apply();
     }
 
 }

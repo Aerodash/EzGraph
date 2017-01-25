@@ -1,6 +1,6 @@
 <template>
     <div class="tabs is-toggle columns is-multiline is-success">
-        <ul class="column is-12 tabs-elements">
+        <ul class="tabs-elements">
             <li v-for="tab in tabs" :class="{ 'is-active': tab.active }" @click="activate(tab)">
                 <a>
                     <span class="icon is-small"><i :class="tab.icon"></i></span>
@@ -42,7 +42,10 @@
 </script>
 <style scoped>
     .tabs-elements {
-        padding-left: 31.5
+        margin-left: auto;
+        margin-right: auto;
+        flex-grow: 0;
+        padding-top: 10px;
     }
     
     .tabs-content {

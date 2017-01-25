@@ -2,11 +2,14 @@ import Edge from './Edge'
 import Graph from './Graph'
 import Node from './Node'
 import NodeLinker from './NodeLinker'
-import GraphColorator from '../Algorithms/ColorationAlgorithm/GraphColorator'
+import GraphColoration from '../Algorithms/ColorationAlgorithm/GraphColoration'
 import Cytoscape from './Graphics/CytoscapeWrapper'
 
 export default {
-    Edge, Graph, Node, NodeLinker, GraphColorator, sampleGraph, Cytoscape
+    Edge, Graph, Node, NodeLinker, sampleGraph, logoGraph, Cytoscape,
+    Algorithms: {
+        GraphColoration
+    }
 }
 
 function sampleGraph() {
@@ -30,4 +33,8 @@ function sampleGraph() {
     graph.link(E).to(F).to(H);
     graph.link(G).to(Y).to(H);
     return graph;
+}
+
+function logoGraph() {
+    return sampleGraph();
 }

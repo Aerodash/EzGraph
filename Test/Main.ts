@@ -1,6 +1,6 @@
 import Graph from '../Core/Graph';
 import Node from '../Core/Node';
-import GraphColorator from '../Algorithms/ColorationAlgorithm/GraphColorator';
+import GraphColoration from '../Algorithms/ColorationAlgorithm/GraphColoration';
 
 let graph = new Graph();
 
@@ -24,4 +24,4 @@ graph.link(G).to(Y).to(H);
 
 console.log(JSON.stringify(graph));
 
-console.log(JSON.stringify(new GraphColorator(graph).color()));
+console.log(JSON.stringify(new GraphColoration(graph).apply()));

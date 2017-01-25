@@ -4,7 +4,7 @@
             <div class="hero-body">
                 <div class="container">
                     <h1 class="title">
-                        EzGraph
+                        EzGraph<span class="graph-title">{{ currentGraphTitle }}</span>
                     </h1>
                 </div>
             </div>
@@ -18,11 +18,11 @@
                     <ez-open-graph-screen></ez-open-graph-screen>
                 </ez-tab>
                 <ez-tab label="New" icon="plus-circle">
-                    <ez-new-graph-screen></ez-new-graph-screen>
+                    <ez-new-graph-screen :graph="graph"></ez-new-graph-screen>
                 </ez-tab>
-                <ez-tab label="Algorithms" icon="refresh">
+                <!--<ez-tab label="Algorithms" icon="refresh">
                     <ez-algorithms-screen></ez-algorithms-screen>
-                </ez-tab>
+                </ez-tab>-->
                 <ez-tab label="Help" icon="question-circle">
                     <ez-help-screen></ez-help-screen>
                 </ez-tab>
@@ -32,8 +32,14 @@
 </template>
 <script>
     export default {
+        props: ['graph'],
+        computed: {
+            currentGraphTitle() {
+                return this.graph.title == '' || this.graph.title == undefined ? '' : ' - ' + this.graph.title;
+            }
+        },
         mounted() {
-            console.log('Component mounted.')
+            console.log('Menu Component mounted.')
         }
     }
 </script>
@@ -48,8 +54,12 @@
         padding-bottom: 1rem;
         padding-top: 7rem;
     }
-
+    
     .hero {
         margin-bottom: 10px;
+    }
+    
+    span.graph-title {
+        font-size: 30px;
     }
 </style>
