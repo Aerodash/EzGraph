@@ -1,23 +1,26 @@
 <template>
     <div>
         <h1 class="title is-3">New graph</h1>
-        <form @submit.prevent="enterCreationMode">
+        <form @submit.prevent="enterCreationMode" style="margin-bottom: 75px;">
             <label class="label">Title</label>
             <p class="control">
                 <input class="input" type="text" v-model="graph.title" name="graphTitle">
             </p>
-            <label class="label">Default colors</label>
-            <label class="label small-label">Nodes</label>
-            <p class="control">
-                <input class="input" type="color" value="#808080" @change="changeNodesColor" name="nodesColor">
-            </p>
-            <label class="label small-label">Edges</label>
-            <p class="control">
-                <input class="input" type="color" value="#d3d3d3" @change="changeEdgesColor" name="edgesColor">
-            </p>
-
             <button type="submit" class="button is-primary pull-right">
                 <span>Create</span>
+                <span class="icon is-small">
+                    <i class="fa fa-chevron-right"></i>
+                </span>
+            </button>
+        </form>
+        <hr>
+        <form @submit.prevent="enterCreationMode">
+            <label class="label">Json</label> //todo auto beautify json
+            <p class="control">
+                <textarea class="textarea"></textarea>
+            </p>
+            <button type="submit" class="button is-primary pull-right">
+                <span>Create from Json</span>
                 <span class="icon is-small">
                     <i class="fa fa-chevron-right"></i>
                 </span>
@@ -29,10 +32,13 @@
     export default {
         data() {
             return {
-                graph: {title: ''}
+                graph: {
+                    title: ''
+                }
             }
         },
         methods: {
+            /*
             changeNodesColor(e) {
                 let newColor = e.target.value;
                 let oldStyle = cy.style().json();
@@ -56,23 +62,22 @@
                     }
                 }
                 cy.style().fromJson(oldStyle).update();
-            },
+            },*/
             enterCreationMode(e) {
                 let values = $(e.target).serializeArray();
                 let value = (key) => values.find(e => e.name == key).value;
-                
-                // Tell app component to create a new graph and entre creation mode
+
+                // Tell app component to create a new graph and enter creation mode
                 Event.fire('ez-createGraph', {
-                    title: value('graphTitle'),
-                    nodesColor: value('nodesColor'),
-                    edgesColor: value('edgesColor')
+                    title: value('graphTitle')
                 });
             }
         }
     }
 </script>
 <style scoped>
-    .small-label {
-        font-size: 12px;
+    hr {
+        background-color: #cecece;
+        height: 2px;
     }
 </style>

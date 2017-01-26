@@ -32,9 +32,11 @@ System.register("Core/Edge", [], function (exports_2, context_2) {
         setters: [],
         execute: function () {
             Edge = (function () {
-                function Edge(fromNode, toNode) {
+                function Edge(fromNode, toNode, isDirected) {
+                    this.isDirected = false;
                     this.fromNode = fromNode;
                     this.toNode = toNode;
+                    this.isDirected = isDirected;
                 }
                 Edge.prototype.equals = function (other) {
                     return this.fromNode.equals(other.fromNode)
@@ -62,13 +64,17 @@ System.register("Core/NodeLinker", ["Core/Edge"], function (exports_3, context_3
                     this.fromNode = fromNode;
                     this.graph = graph;
                 }
-                NodeLinker.prototype.to = function (toNode) {
+                NodeLinker.prototype.to = function (toNode, isDirected) {
                     this.toNode = toNode;
-                    var edge = new Edge_1["default"](this.fromNode, this.toNode);
+                    var edge = new Edge_1["default"](this.fromNode, this.toNode, isDirected);
                     if (!this.graph.edgeExists(edge)) {
                         edge.fromNode.degree++;
                         edge.toNode.degree++;
                         this.graph.addEdge(edge);
+                        this.graph.addRelationship(this.fromNode, { node: toNode, isDirected: edge.isDirected });
+                        if (!isDirected) {
+                            this.graph.addRelationship(toNode, { node: this.fromNode, isDirected: edge.isDirected });
+                        }
                     }
                     return this;
                 };
@@ -81,7 +87,7 @@ System.register("Core/NodeLinker", ["Core/Edge"], function (exports_3, context_3
 System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_4) {
     "use strict";
     var __moduleName = context_4 && context_4.id;
-    var NodeLinker_1, Graph;
+    var NodeLinker_1, Graph, Relationship;
     return {
         setters: [
             function (NodeLinker_1_1) {
@@ -93,6 +99,7 @@ System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_
                 function Graph() {
                     this.nodes = [];
                     this.edges = [];
+                    this.relationships = {};
                     this.title = 'New graph';
                 }
                 Graph.prototype.link = function (node) {
@@ -104,6 +111,11 @@ System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_
                         this.nodes.push(edge.fromNode);
                     if (!this.nodeExists(edge.toNode))
                         this.nodes.push(edge.toNode);
+                };
+                Graph.prototype.addRelationship = function (fromNode, relationship) {
+                    if (!this.relationships[fromNode.id])
+                        this.relationships[fromNode.id] = [];
+                    this.relationships[fromNode.id].push(relationship);
                 };
                 Graph.prototype.edgeExists = function (edge) {
                     for (var _i = 0, _a = this.edges; _i < _a.length; _i++) {
@@ -137,6 +149,11 @@ System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_
                 return Graph;
             }());
             exports_4("default", Graph);
+            Relationship = (function () {
+                function Relationship() {
+                }
+                return Relationship;
+            }());
         }
     };
 });

@@ -6,6 +6,7 @@ import Algorithm from '../Algorithms/Algorithm';
 export default class Graph {
     nodes: Node[] = [];
     edges: Edge[] = [];
+    relationships: RelationshipsMap = {};
     title: string = 'New graph';
 
     link(node: Node): NodeLinker {
@@ -16,6 +17,11 @@ export default class Graph {
         this.edges.push(edge);
         if (!this.nodeExists(edge.fromNode)) this.nodes.push(edge.fromNode);
         if (!this.nodeExists(edge.toNode)) this.nodes.push(edge.toNode);
+    }
+
+    addRelationship(fromNode: Node, relationship: Relationship): void {
+        if (!this.relationships[fromNode.id]) this.relationships[fromNode.id] = [];
+        this.relationships[fromNode.id].push(relationship);
     }
 
     edgeExists(edge: Edge): Edge {
@@ -48,4 +54,13 @@ export default class Graph {
         return algorithm.apply();
     }
 
+}
+
+interface RelationshipsMap {
+    [key: string]: Relationship[];
+}
+
+class Relationship {
+    node: Node;
+    isDirected: boolean;
 }
