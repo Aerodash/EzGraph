@@ -6,8 +6,9 @@ import Algorithm from '../Algorithms/Algorithm';
 export default class Graph {
     nodes: Node[] = [];
     edges: Edge[] = [];
+    //relationships: RelationshipsMap[] = [];
     relationships: RelationshipsMap = {};
-    title: string = 'New graph';
+    title: string = '';
 
     link(node: Node): NodeLinker {
         return new NodeLinker(node, this);
@@ -56,11 +57,51 @@ export default class Graph {
 
 }
 
-interface RelationshipsMap {
+class RelationshipsMap {
     [key: string]: Relationship[];
+    keyName?: any;
 }
 
 class Relationship {
     node: Node;
     isDirected: boolean;
 }
+/*
+FAIL UNNECESSARY HARD CODE
+
+Template:
+
+<!--
+<div v-for="relationshipsMap in graph.relationships">
+    <tr>
+        <th :rowspan="relationshipsMap[relationshipsMap.keyName].length">{{relationshipsMap.keyName}}</th>
+        <td>
+            <i class="fa fa-minus" style="color: #41b883;"></i>&nbsp;
+            <span class="pull-right">{{ relationshipsMap[relationshipsMap.keyName][0].node.id }}</span>
+        </td>
+    </tr>
+    <tr v-for="(relationship, index) in relationshipsMap[relationshipsMap.keyName]" v-show="index > 0">
+        <td>
+            <i class="fa fa-minus" style="color: #41b883;"></i>&nbsp;
+            <span class="pull-right">{{ relationship.node.id }}</span>
+        </td>
+    </tr>
+</div>-->
+
+addRelationship(fromNode: Node, relationship: Relationship): void {
+    let foundRelationShips: RelationshipsMap[] = this.relationships.filter(map => map.hasOwnProperty(fromNode.id));
+        if (foundRelationShips.length == 0) {
+            let newRel: RelationshipsMap = {};
+            newRel[fromNode.id] = [relationship];
+            newRel.keyName = fromNode.id;
+            this.relationships.push(newRel);
+        } else {
+            for (let rel of this.relationships) {
+                if (rel.hasOwnProperty(fromNode.id)) {
+                    rel[fromNode.id].push(relationship);
+                    break;
+                }
+            }
+    }
+}
+*/

@@ -1,8 +1,9 @@
-
-$(window).on('LoadVueComponents', function() {
+$(window).on('LoadVueComponents', function () {
     // Initialization
     window._ = require('lodash');
     window.Vue = require('vue');
+    window.Toastr = require('toastr');
+    configToastr();
 
     // Event hub
     const Event = require('./Utils/Event').default;
@@ -35,3 +36,23 @@ $(window).on('LoadVueComponents', function() {
         el: '#app'
     })
 })
+
+function configToastr() {
+    Toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "3000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+}

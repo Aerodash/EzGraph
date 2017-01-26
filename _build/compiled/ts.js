@@ -87,7 +87,7 @@ System.register("Core/NodeLinker", ["Core/Edge"], function (exports_3, context_3
 System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_4) {
     "use strict";
     var __moduleName = context_4 && context_4.id;
-    var NodeLinker_1, Graph, Relationship;
+    var NodeLinker_1, Graph, RelationshipsMap, Relationship;
     return {
         setters: [
             function (NodeLinker_1_1) {
@@ -100,7 +100,7 @@ System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_
                     this.nodes = [];
                     this.edges = [];
                     this.relationships = {};
-                    this.title = 'New graph';
+                    this.title = '';
                 }
                 Graph.prototype.link = function (node) {
                     return new NodeLinker_1["default"](node, this);
@@ -149,6 +149,11 @@ System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_
                 return Graph;
             }());
             exports_4("default", Graph);
+            RelationshipsMap = (function () {
+                function RelationshipsMap() {
+                }
+                return RelationshipsMap;
+            }());
             Relationship = (function () {
                 function Relationship() {
                 }

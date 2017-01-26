@@ -30,7 +30,6 @@
             }
         },
         updated() {
-            console.log("Updated !");
             if (this.$parent.$data.isCreatingGraph) { // If creation mode
                 let height = $(window).height() - $(this.$refs.hero).height();
                 $(this.$refs.tabsContainer).height(height);
@@ -42,7 +41,6 @@
                 height = $(window).height() - $tabsElementsHeight - $(this.$refs.hero).height();
                 $tabsContent.css('height', height);
                 $tabsContent.css('overflow-y', 'scroll');
-                console.log(height)
             }
         }
     }
