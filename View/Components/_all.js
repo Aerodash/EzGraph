@@ -29,6 +29,7 @@ $(window).on('LoadVueComponents', function () {
     Vue.component('ez-algorithms-screen', require('./Screens/AlgorithmsScreen.vue'));
     Vue.component('ez-help-screen', require('./Screens/HelpScreen.vue'));
     Vue.component('ez-graph-creation-screen', require('./Screens/GraphCreationScreen.vue'));
+    Vue.component('ez-graph-creation-screen-v2', require('./Screens/GraphCreationScreenV2.vue'));
 
 
     // Initialize Vue app

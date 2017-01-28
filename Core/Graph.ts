@@ -14,6 +14,10 @@ export default class Graph {
         return new NodeLinker(node, this);
     }
 
+    addNode(node: Node): void {
+        this.nodes.push(node);
+    }
+
     addEdge(edge: Edge): void {
         this.edges.push(edge);
         if (!this.nodeExists(edge.fromNode)) this.nodes.push(edge.fromNode);

@@ -64,9 +64,10 @@
             </tbody>
         </table>
         <div v-show="graphIsEmpty" class="has-text-centered title is-5">No nodes</div>
-        <a class="fab" title="Add a node" @click="toggleAddNodeMode">
+        <a class="fab" @click="toggleAddNodeMode">
             <i class="fa fa-plus" v-show="!addNodeMode"></i>
             <i class="fa fa-close" v-show="addNodeMode"></i>
+            <span>Add a node</span>
         </a>
     </div>
 </template>
@@ -98,7 +99,7 @@
                     setTimeout(() => {
                         let parentTabsComponent = this.$parent.$parent.$refs;
                         $(parentTabsComponent.tabsContent).animate({
-                            scrollTop: $(parentTabsComponent.tabsContent).outerHeight() + 49
+                            scrollTop: 999999
                         });
                     }, 1);
                 }
@@ -158,19 +159,18 @@
 </script>
 <style scoped>
     .fab {
+        padding: 0 12px;
         display: inline-block;
         color: #fff;
         position: absolute;
         bottom: 10px;
-        right: 10px;
+        right: 512px;
         overflow: hidden;
         z-index: 1;
-        width: 50px;
         height: 50px;
         line-height: 54px;
-        padding: 0;
         background-color: #41b883;
-        border-radius: 50%;
+        border-radius: 5%;
         transition: .3s;
         cursor: pointer;
         vertical-align: middle;

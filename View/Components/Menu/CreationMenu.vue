@@ -12,10 +12,10 @@
         <div class="tabs-container" ref="tabsContainer">
             <ez-tabs ref="tabs">
                 <ez-tab label="Creation" icon="edit">
-                    <ez-graph-creation-screen></ez-graph-creation-screen>
+                    <ez-graph-creation-screen-v2 :graph="graph"></ez-graph-creation-screen-v2>
                 </ez-tab>
                 <ez-tab label="Algorithms" icon="refresh">
-                    <ez-algorithms-screen></ez-algorithms-screen>
+                    <ez-algorithms-screen :graph="graph"></ez-algorithms-screen>
                 </ez-tab>
             </ez-tabs>
         </div>

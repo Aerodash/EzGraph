@@ -2,14 +2,33 @@
 
 import cytoscape from 'cytoscape';
 import Graph from '../Graph';
+import Node from '../Node';
 
 export default class CytoscapeWrapper {
 
-    static create(opts: Cy.CytoscapeOptions): Cy.Instance {
-        return cytoscape(opts);
+    constructor(private cy?: Cy.Instance) {
+
     }
 
-    static createFromGraph(graph: Graph, container: HTMLElement, opts?: Cy.CytoscapeOptions): Cy.Instance {
+    getCy(): Cy.Instance {
+        return this.cy;
+    }
+
+    addNode(node: Node): void {
+        let elt: Cy.ElementDefinition = {
+            data: {
+                id: node.id,
+                name: node.id
+            }
+        };
+        this.cy.add(elt);
+    }
+
+    static create(opts: Cy.CytoscapeOptions): CytoscapeWrapper {
+        return new CytoscapeWrapper(cytoscape(opts));
+    }
+
+    static createFromGraph(graph: Graph, container: HTMLElement, opts?: Cy.CytoscapeOptions): CytoscapeWrapper {
         if (!opts)
             opts = {
                 boxSelectionEnabled: false,
@@ -21,7 +40,7 @@ export default class CytoscapeWrapper {
         if (!opts.elements) opts.elements = CytoscapeWrapper.getCytoscapeElements(graph);
         if (!opts.style) opts.style = CytoscapeWrapper.getCytoscapeStyles(graph);
         opts.container = container;
-        return cytoscape(opts);
+        return new CytoscapeWrapper(cytoscape(opts));
     }
 
     static getCytoscapeElements(graph: Graph): any[] {

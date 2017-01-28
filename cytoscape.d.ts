@@ -2338,6 +2338,7 @@ declare namespace Cy {
          */
         id?: string;
         position?: Position;
+        name: string;
     }
     interface EdgeDefinition extends ElementDefinition {
         data: EdgeDataDefinition;

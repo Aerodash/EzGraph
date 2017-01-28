@@ -2,12 +2,12 @@
     <div class="columns is-marginless">
         <div class="column is-8 is-paddingless">
             <h1>{{currentGraphTitle}}</h1>
-            <ez-graph :graph="currentGraph"></ez-graph>
+            <ez-graph :graph="currentGraph" :creation-mode="isCreatingGraph"></ez-graph>
         </div>
-        <div class="column is-4 is-paddingless" v-show="!isCreatingGraph">
+        <div class="column is-4 is-paddingless" v-show="!isCreatingGraph" style="z-index: 1">
             <ez-main-menu :graph="currentGraph"></ez-menu>
         </div>
-        <div class="column is-4 is-paddingless" v-show="isCreatingGraph">
+        <div class="column is-4 is-paddingless" v-show="isCreatingGraph" style="z-index: 1">
             <ez-creation-menu :graph="currentGraph"></ez-creation-menu>
         </div>
     </div>

@@ -105,6 +105,9 @@ System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_
                 Graph.prototype.link = function (node) {
                     return new NodeLinker_1["default"](node, this);
                 };
+                Graph.prototype.addNode = function (node) {
+                    this.nodes.push(node);
+                };
                 Graph.prototype.addEdge = function (edge) {
                     this.edges.push(edge);
                     if (!this.nodeExists(edge.fromNode))
@@ -252,10 +255,23 @@ System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape"], function (expor
         ],
         execute: function () {
             CytoscapeWrapper = (function () {
-                function CytoscapeWrapper() {
+                function CytoscapeWrapper(cy) {
+                    this.cy = cy;
                 }
+                CytoscapeWrapper.prototype.getCy = function () {
+                    return this.cy;
+                };
+                CytoscapeWrapper.prototype.addNode = function (node) {
+                    var elt = {
+                        data: {
+                            id: node.id,
+                            name: node.id
+                        }
+                    };
+                    this.cy.add(elt);
+                };
                 CytoscapeWrapper.create = function (opts) {
-                    return cytoscape_1["default"](opts);
+                    return new CytoscapeWrapper(cytoscape_1["default"](opts));
                 };
                 CytoscapeWrapper.createFromGraph = function (graph, container, opts) {
                     if (!opts)
@@ -271,7 +287,7 @@ System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape"], function (expor
                     if (!opts.style)
                         opts.style = CytoscapeWrapper.getCytoscapeStyles(graph);
                     opts.container = container;
-                    return cytoscape_1["default"](opts);
+                    return new CytoscapeWrapper(cytoscape_1["default"](opts));
                 };
                 CytoscapeWrapper.getCytoscapeElements = function (graph) {
                     var nodes = this.getCytoscapeNodes(graph), edges = this.getCytoscapeEdges(graph);
