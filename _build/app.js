@@ -48,12 +48,15 @@ System.register("Core/Edge", [], function (exports_2, context_2) {
         }
     };
 });
-System.register("Core/NodeLinker", ["Core/Edge"], function (exports_3, context_3) {
+System.register("Core/NodeLinker", ["Core/Node", "Core/Edge"], function (exports_3, context_3) {
     "use strict";
     var __moduleName = context_3 && context_3.id;
-    var Edge_1, NodeLinker;
+    var Node_1, Edge_1, NodeLinker;
     return {
         setters: [
+            function (Node_1_1) {
+                Node_1 = Node_1_1;
+            },
             function (Edge_1_1) {
                 Edge_1 = Edge_1_1;
             }
@@ -61,22 +64,28 @@ System.register("Core/NodeLinker", ["Core/Edge"], function (exports_3, context_3
         execute: function () {
             NodeLinker = (function () {
                 function NodeLinker(fromNode, graph) {
-                    this.fromNode = fromNode;
                     this.graph = graph;
+                    this.fromNode = this.nodeify(fromNode);
                 }
                 NodeLinker.prototype.to = function (toNode, isDirected) {
-                    this.toNode = toNode;
+                    this.toNode = this.nodeify(toNode);
                     var edge = new Edge_1["default"](this.fromNode, this.toNode, isDirected);
                     if (!this.graph.edgeExists(edge)) {
                         edge.fromNode.degree++;
                         edge.toNode.degree++;
                         this.graph.addEdge(edge);
-                        this.graph.addRelationship(this.fromNode, { node: toNode, isDirected: edge.isDirected });
+                        this.graph.addRelationship(this.fromNode, { node: this.toNode, isDirected: edge.isDirected });
                         if (!isDirected) {
-                            this.graph.addRelationship(toNode, { node: this.fromNode, isDirected: edge.isDirected });
+                            this.graph.addRelationship(this.toNode, { node: this.fromNode, isDirected: edge.isDirected });
                         }
                     }
                     return this;
+                };
+                NodeLinker.prototype.findNodeById = function (id) {
+                    return this.graph.nodes.filter(function (n) { return n.id == id; })[0];
+                };
+                NodeLinker.prototype.nodeify = function (node) {
+                    return !(node instanceof Node_1["default"]) ? this.findNodeById(node) : node;
                 };
                 return NodeLinker;
             }());
@@ -84,12 +93,15 @@ System.register("Core/NodeLinker", ["Core/Edge"], function (exports_3, context_3
         }
     };
 });
-System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_4) {
+System.register("Core/Graph", ["Core/Node", "Core/NodeLinker"], function (exports_4, context_4) {
     "use strict";
     var __moduleName = context_4 && context_4.id;
-    var NodeLinker_1, Graph, RelationshipsMap, Relationship;
+    var Node_2, NodeLinker_1, Graph, RelationshipsMap, Relationship;
     return {
         setters: [
+            function (Node_2_1) {
+                Node_2 = Node_2_1;
+            },
             function (NodeLinker_1_1) {
                 NodeLinker_1 = NodeLinker_1_1;
             }
@@ -128,6 +140,15 @@ System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_
                     }
                     return null;
                 };
+                Graph.prototype.edgeExistsBetween = function (fromNode, toNode) {
+                    for (var _i = 0, _a = this.edges; _i < _a.length; _i++) {
+                        var e = _a[_i];
+                        if (e.fromNode.equals(this.nodeify(fromNode))
+                            && e.toNode.equals(this.nodeify(toNode)))
+                            return e;
+                    }
+                    return null;
+                };
                 Graph.prototype.nodeExists = function (node) {
                     for (var _i = 0, _a = this.nodes; _i < _a.length; _i++) {
                         var n = _a[_i];
@@ -148,6 +169,12 @@ System.register("Core/Graph", ["Core/NodeLinker"], function (exports_4, context_
                 Graph.prototype.apply = function (algorithm) {
                     algorithm.graph = this;
                     return algorithm.apply();
+                };
+                Graph.prototype.findNodeById = function (id) {
+                    return this.nodes.filter(function (n) { return n.id == id; })[0];
+                };
+                Graph.prototype.nodeify = function (node) {
+                    return !(node instanceof Node_2["default"]) ? this.findNodeById(node) : node;
                 };
                 return Graph;
             }());
@@ -243,14 +270,17 @@ System.register("Algorithms/ColorationAlgorithm/GraphColoration", ["Core/Graph",
         }
     };
 });
-System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape"], function (exports_7, context_7) {
+System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape", "Core/Node"], function (exports_7, context_7) {
     "use strict";
     var __moduleName = context_7 && context_7.id;
-    var cytoscape_1, CytoscapeWrapper;
+    var cytoscape_1, Node_3, CytoscapeWrapper;
     return {
         setters: [
             function (cytoscape_1_1) {
                 cytoscape_1 = cytoscape_1_1;
+            },
+            function (Node_3_1) {
+                Node_3 = Node_3_1;
             }
         ],
         execute: function () {
@@ -261,14 +291,31 @@ System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape"], function (expor
                 CytoscapeWrapper.prototype.getCy = function () {
                     return this.cy;
                 };
-                CytoscapeWrapper.prototype.addNode = function (node) {
+                CytoscapeWrapper.prototype.addNode = function (node, position) {
                     var elt = {
                         data: {
                             id: node.id,
-                            name: node.id
+                            name: node.id,
+                            position: position
                         }
                     };
                     this.cy.add(elt);
+                };
+                CytoscapeWrapper.prototype.addEdge = function (fromNode, toNode) {
+                    var elt = {
+                        data: {
+                            id: "" + CytoscapeWrapper.idCounter++,
+                            source: this.nodeToString(fromNode),
+                            target: this.nodeToString(toNode)
+                        }
+                    };
+                    this.cy.add(elt);
+                };
+                CytoscapeWrapper.prototype.nodeToString = function (node) {
+                    return node instanceof Node_3["default"] ? node.id : node;
+                };
+                CytoscapeWrapper.prototype.center = function () {
+                    this.cy.center();
                 };
                 CytoscapeWrapper.create = function (opts) {
                     return new CytoscapeWrapper(cytoscape_1["default"](opts));
@@ -307,17 +354,16 @@ System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape"], function (expor
                     return nodes;
                 };
                 CytoscapeWrapper.getCytoscapeEdges = function (graph) {
-                    var edges = [], id = 1;
+                    var edges = [];
                     for (var _i = 0, _a = graph.edges; _i < _a.length; _i++) {
                         var edge = _a[_i];
                         edges.push({
                             data: {
-                                id: id,
+                                id: CytoscapeWrapper.idCounter++,
                                 source: edge.fromNode.id,
                                 target: edge.toNode.id
                             }
                         });
-                        id++;
                     }
                     return edges;
                 };
@@ -359,6 +405,7 @@ System.register("Core/Graphics/CytoscapeWrapper", ["cytoscape"], function (expor
                 };
                 return CytoscapeWrapper;
             }());
+            CytoscapeWrapper.idCounter = 1;
             exports_7("default", CytoscapeWrapper);
         }
     };
@@ -368,16 +415,16 @@ System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/N
     var __moduleName = context_8 && context_8.id;
     function sampleGraph() {
         var graph = new Graph_2["default"]();
-        var A = new Node_1["default"]("A");
-        var B = new Node_1["default"]("B");
-        var C = new Node_1["default"]("C");
-        var D = new Node_1["default"]("D");
-        var E = new Node_1["default"]("E");
-        var F = new Node_1["default"]("F");
-        var G = new Node_1["default"]("G");
-        var H = new Node_1["default"]("H");
-        var Y = new Node_1["default"]("Y");
-        var Z = new Node_1["default"]("Z");
+        var A = new Node_4["default"]("A");
+        var B = new Node_4["default"]("B");
+        var C = new Node_4["default"]("C");
+        var D = new Node_4["default"]("D");
+        var E = new Node_4["default"]("E");
+        var F = new Node_4["default"]("F");
+        var G = new Node_4["default"]("G");
+        var H = new Node_4["default"]("H");
+        var Y = new Node_4["default"]("Y");
+        var Z = new Node_4["default"]("Z");
         graph.link(A).to(Z).to(Y).to(B).to(C);
         graph.link(B).to(D).to(E).to(F);
         graph.link(C).to(Y).to(D).to(G);
@@ -389,7 +436,7 @@ System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/N
     function logoGraph() {
         return sampleGraph();
     }
-    var Edge_2, Graph_2, Node_1, NodeLinker_2, GraphColoration_1, CytoscapeWrapper_1;
+    var Edge_2, Graph_2, Node_4, NodeLinker_2, GraphColoration_1, CytoscapeWrapper_1;
     return {
         setters: [
             function (Edge_2_1) {
@@ -398,8 +445,8 @@ System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/N
             function (Graph_2_1) {
                 Graph_2 = Graph_2_1;
             },
-            function (Node_1_1) {
-                Node_1 = Node_1_1;
+            function (Node_4_1) {
+                Node_4 = Node_4_1;
             },
             function (NodeLinker_2_1) {
                 NodeLinker_2 = NodeLinker_2_1;
@@ -413,7 +460,7 @@ System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/N
         ],
         execute: function () {
             exports_8("default", {
-                Edge: Edge_2["default"], Graph: Graph_2["default"], Node: Node_1["default"], NodeLinker: NodeLinker_2["default"], sampleGraph: sampleGraph, logoGraph: logoGraph, Cytoscape: CytoscapeWrapper_1["default"],
+                Edge: Edge_2["default"], Graph: Graph_2["default"], Node: Node_4["default"], NodeLinker: NodeLinker_2["default"], sampleGraph: sampleGraph, logoGraph: logoGraph, Cytoscape: CytoscapeWrapper_1["default"],
                 Algorithms: {
                     GraphColoration: GraphColoration_1["default"]
                 }
@@ -424,14 +471,14 @@ System.register("Core/EzGraph", ["Core/Edge", "Core/Graph", "Core/Node", "Core/N
 System.register("Test/Main", ["Core/Graph", "Core/Node", "Algorithms/ColorationAlgorithm/GraphColoration"], function (exports_9, context_9) {
     "use strict";
     var __moduleName = context_9 && context_9.id;
-    var Graph_3, Node_2, GraphColoration_2, graph, A, B, C, D, E, F, G, H, Y, Z;
+    var Graph_3, Node_5, GraphColoration_2, graph, A, B, C, D, E, F, G, H, Y, Z;
     return {
         setters: [
             function (Graph_3_1) {
                 Graph_3 = Graph_3_1;
             },
-            function (Node_2_1) {
-                Node_2 = Node_2_1;
+            function (Node_5_1) {
+                Node_5 = Node_5_1;
             },
             function (GraphColoration_2_1) {
                 GraphColoration_2 = GraphColoration_2_1;
@@ -439,16 +486,16 @@ System.register("Test/Main", ["Core/Graph", "Core/Node", "Algorithms/ColorationA
         ],
         execute: function () {
             graph = new Graph_3["default"]();
-            A = new Node_2["default"]("A");
-            B = new Node_2["default"]("B");
-            C = new Node_2["default"]("C");
-            D = new Node_2["default"]("D");
-            E = new Node_2["default"]("E");
-            F = new Node_2["default"]("F");
-            G = new Node_2["default"]("G");
-            H = new Node_2["default"]("H");
-            Y = new Node_2["default"]("Y");
-            Z = new Node_2["default"]("Z");
+            A = new Node_5["default"]("A");
+            B = new Node_5["default"]("B");
+            C = new Node_5["default"]("C");
+            D = new Node_5["default"]("D");
+            E = new Node_5["default"]("E");
+            F = new Node_5["default"]("F");
+            G = new Node_5["default"]("G");
+            H = new Node_5["default"]("H");
+            Y = new Node_5["default"]("Y");
+            Z = new Node_5["default"]("Z");
             graph.link(A).to(Z).to(Y).to(B).to(C);
             graph.link(B).to(D).to(E).to(F);
             graph.link(C).to(Y).to(D).to(G);
@@ -463,24 +510,24 @@ System.register("Test/Main", ["Core/Graph", "Core/Node", "Algorithms/ColorationA
 System.register("Utils/NodeConstants", ["Core/Node"], function (exports_10, context_10) {
     "use strict";
     var __moduleName = context_10 && context_10.id;
-    var Node_3, A, B, C, D, E, F, G, H, Y, Z;
+    var Node_6, A, B, C, D, E, F, G, H, Y, Z;
     return {
         setters: [
-            function (Node_3_1) {
-                Node_3 = Node_3_1;
+            function (Node_6_1) {
+                Node_6 = Node_6_1;
             }
         ],
         execute: function () {
-            A = new Node_3["default"]("A");
-            B = new Node_3["default"]("B");
-            C = new Node_3["default"]("C");
-            D = new Node_3["default"]("D");
-            E = new Node_3["default"]("E");
-            F = new Node_3["default"]("F");
-            G = new Node_3["default"]("G");
-            H = new Node_3["default"]("H");
-            Y = new Node_3["default"]("Y");
-            Z = new Node_3["default"]("Z");
+            A = new Node_6["default"]("A");
+            B = new Node_6["default"]("B");
+            C = new Node_6["default"]("C");
+            D = new Node_6["default"]("D");
+            E = new Node_6["default"]("E");
+            F = new Node_6["default"]("F");
+            G = new Node_6["default"]("G");
+            H = new Node_6["default"]("H");
+            Y = new Node_6["default"]("Y");
+            Z = new Node_6["default"]("Z");
         }
     };
 });
@@ -16015,8 +16062,6 @@ UUID.create = function create () {
 //
 //
 //
-//
-//
 
 /* harmony default export */ exports["default"] = {
     props: ['graph', 'creationMode'],
@@ -16025,7 +16070,11 @@ UUID.create = function create () {
             graphData: null,
             cy: null,
             activeWindow: null,
-            nodeToAddId: null
+            nodeToAddId: null,
+            toNodeDisabled: true,
+            toNodeValues: [],
+            fromNode: null,
+            toNode: null
         }
     },
     methods: {
@@ -16051,6 +16100,24 @@ UUID.create = function create () {
             this.graph.addNode(node);
             this.cy.addNode(node); // Add to canvas
             this.nodeToAddId = null;
+            this.$refs.addNodeInput.focus();
+        },
+        addEdge: function addEdge() {
+            if (this.fromNode == null || this.fromNode == '') { 
+                Toastr.error('Source node is required !')
+                return;
+            }
+            if (this.toNode == null || this.toNode == '') { 
+                Toastr.error('Target node is required !')
+                return;
+            }
+            if (this.graph.edgeExistsBetween(this.fromNode, this.toNode)) {
+                Toastr.error('Edge already exists between ' + this.fromNode + ' and ' + this.toNode);
+                return;
+            }
+            this.graph.link(this.fromNode).to(this.toNode);
+            this.cy.addEdge(this.fromNode, this.toNode); // Add to canvas
+            this.fromNode = this.toNode = null;
         }
     },
     mounted: function mounted() {
@@ -16060,7 +16127,12 @@ UUID.create = function create () {
         graph: function graph(newValue) {
             if (!this.graphData) { // First time
                 window.cy = this.cy = Cytoscape.createFromGraph(newValue, this.$refs.graph);
+                this.cy.center();
             }
+        },
+        fromNode: function fromNode(newValue) {
+            this.toNodeDisabled = !(!!newValue);
+            this.toNodeValues = this.graph.nodes.filter(function (n) { return n.id != newValue; });
         }
     }
 };
@@ -27108,6 +27180,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       value: (_vm.nodeToAddId),
       expression: "nodeToAddId"
     }],
+    ref: "addNodeInput",
     staticClass: "input",
     attrs: {
       "type": "text",
@@ -27154,7 +27227,36 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "control is-expanded"
   }, [_c('span', {
     staticClass: "select"
-  }, [_c('select', [_c('option', [_vm._v("Select dropdown")]), _vm._v(" "), _c('option', [_vm._v("With options")])])])]), _vm._v(" "), _c('div', {
+  }, [_c('select', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.fromNode),
+      expression: "fromNode"
+    }],
+    attrs: {
+      "disabled": _vm.graph.nodes.length == 0
+    },
+    on: {
+      "change": function($event) {
+        _vm.fromNode = Array.prototype.filter.call($event.target.options, function(o) {
+          return o.selected
+        }).map(function(o) {
+          var val = "_value" in o ? o._value : o.value;
+          return val
+        })[0]
+      }
+    }
+  }, _vm._l((_vm.graph.nodes), function(node) {
+    return _c('option', {
+      directives: [{
+        name: "show",
+        rawName: "v-show",
+        value: (_vm.graph.nodes.length != 0),
+        expression: "graph.nodes.length != 0"
+      }]
+    }, [_vm._v(_vm._s(node.id))])
+  }))])]), _vm._v(" "), _c('div', {
     staticClass: "control-label"
   }, [_c('label', {
     staticClass: "label"
@@ -27162,8 +27264,33 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "control is-expanded"
   }, [_c('span', {
     staticClass: "select"
-  }, [_c('select', [_c('option', [_vm._v("Select dropdown")]), _vm._v(" "), _c('option', [_vm._v("With options")])])])])]), _vm._v(" "), _c('a', {
-    staticClass: "button is-primary is-outlined pull-right"
+  }, [_c('select', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.toNode),
+      expression: "toNode"
+    }],
+    attrs: {
+      "disabled": _vm.toNodeDisabled
+    },
+    on: {
+      "change": function($event) {
+        _vm.toNode = Array.prototype.filter.call($event.target.options, function(o) {
+          return o.selected
+        }).map(function(o) {
+          var val = "_value" in o ? o._value : o.value;
+          return val
+        })[0]
+      }
+    }
+  }, _vm._l((_vm.toNodeValues), function(node) {
+    return _c('option', [_vm._v(_vm._s(node.id))])
+  }))])])]), _vm._v(" "), _c('a', {
+    staticClass: "button is-primary is-outlined pull-right",
+    on: {
+      "click": _vm.addEdge
+    }
   }, [_vm._v("Add")])]) : _vm._e()])], 1)
 },staticRenderFns: []}
 module.exports.render._withStripped = true

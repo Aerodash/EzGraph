@@ -15528,8 +15528,6 @@ UUID.create = function create () {
 //
 //
 //
-//
-//
 
 /* harmony default export */ exports["default"] = {
     props: ['graph', 'creationMode'],
@@ -15538,7 +15536,11 @@ UUID.create = function create () {
             graphData: null,
             cy: null,
             activeWindow: null,
-            nodeToAddId: null
+            nodeToAddId: null,
+            toNodeDisabled: true,
+            toNodeValues: [],
+            fromNode: null,
+            toNode: null
         }
     },
     methods: {
@@ -15564,6 +15566,24 @@ UUID.create = function create () {
             this.graph.addNode(node);
             this.cy.addNode(node); // Add to canvas
             this.nodeToAddId = null;
+            this.$refs.addNodeInput.focus();
+        },
+        addEdge: function addEdge() {
+            if (this.fromNode == null || this.fromNode == '') { 
+                Toastr.error('Source node is required !')
+                return;
+            }
+            if (this.toNode == null || this.toNode == '') { 
+                Toastr.error('Target node is required !')
+                return;
+            }
+            if (this.graph.edgeExistsBetween(this.fromNode, this.toNode)) {
+                Toastr.error('Edge already exists between ' + this.fromNode + ' and ' + this.toNode);
+                return;
+            }
+            this.graph.link(this.fromNode).to(this.toNode);
+            this.cy.addEdge(this.fromNode, this.toNode); // Add to canvas
+            this.fromNode = this.toNode = null;
         }
     },
     mounted: function mounted() {
@@ -15573,7 +15593,12 @@ UUID.create = function create () {
         graph: function graph(newValue) {
             if (!this.graphData) { // First time
                 window.cy = this.cy = Cytoscape.createFromGraph(newValue, this.$refs.graph);
+                this.cy.center();
             }
+        },
+        fromNode: function fromNode(newValue) {
+            this.toNodeDisabled = !(!!newValue);
+            this.toNodeValues = this.graph.nodes.filter(function (n) { return n.id != newValue; });
         }
     }
 };
@@ -26621,6 +26646,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       value: (_vm.nodeToAddId),
       expression: "nodeToAddId"
     }],
+    ref: "addNodeInput",
     staticClass: "input",
     attrs: {
       "type": "text",
@@ -26667,7 +26693,36 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "control is-expanded"
   }, [_c('span', {
     staticClass: "select"
-  }, [_c('select', [_c('option', [_vm._v("Select dropdown")]), _vm._v(" "), _c('option', [_vm._v("With options")])])])]), _vm._v(" "), _c('div', {
+  }, [_c('select', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.fromNode),
+      expression: "fromNode"
+    }],
+    attrs: {
+      "disabled": _vm.graph.nodes.length == 0
+    },
+    on: {
+      "change": function($event) {
+        _vm.fromNode = Array.prototype.filter.call($event.target.options, function(o) {
+          return o.selected
+        }).map(function(o) {
+          var val = "_value" in o ? o._value : o.value;
+          return val
+        })[0]
+      }
+    }
+  }, _vm._l((_vm.graph.nodes), function(node) {
+    return _c('option', {
+      directives: [{
+        name: "show",
+        rawName: "v-show",
+        value: (_vm.graph.nodes.length != 0),
+        expression: "graph.nodes.length != 0"
+      }]
+    }, [_vm._v(_vm._s(node.id))])
+  }))])]), _vm._v(" "), _c('div', {
     staticClass: "control-label"
   }, [_c('label', {
     staticClass: "label"
@@ -26675,8 +26730,33 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "control is-expanded"
   }, [_c('span', {
     staticClass: "select"
-  }, [_c('select', [_c('option', [_vm._v("Select dropdown")]), _vm._v(" "), _c('option', [_vm._v("With options")])])])])]), _vm._v(" "), _c('a', {
-    staticClass: "button is-primary is-outlined pull-right"
+  }, [_c('select', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.toNode),
+      expression: "toNode"
+    }],
+    attrs: {
+      "disabled": _vm.toNodeDisabled
+    },
+    on: {
+      "change": function($event) {
+        _vm.toNode = Array.prototype.filter.call($event.target.options, function(o) {
+          return o.selected
+        }).map(function(o) {
+          var val = "_value" in o ? o._value : o.value;
+          return val
+        })[0]
+      }
+    }
+  }, _vm._l((_vm.toNodeValues), function(node) {
+    return _c('option', [_vm._v(_vm._s(node.id))])
+  }))])])]), _vm._v(" "), _c('a', {
+    staticClass: "button is-primary is-outlined pull-right",
+    on: {
+      "click": _vm.addEdge
+    }
   }, [_vm._v("Add")])]) : _vm._e()])], 1)
 },staticRenderFns: []}
 module.exports.render._withStripped = true

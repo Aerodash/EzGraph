@@ -17,7 +17,7 @@
                 <i class="fa fa-close" @click="close()"></i>
                 <label class="label">Add a node</label>
                 <p class="control">
-                    <input class="input" type="text" placeholder="Node identifier" v-model="nodeToAddId">
+                    <input class="input" type="text" placeholder="Node identifier" v-model="nodeToAddId" ref="addNodeInput">
                 </p>
                 <a class="button is-primary is-outlined pull-right" @click="addNode">Add</a>
             </div>
@@ -32,9 +32,8 @@
                     </div>
                     <p class="control is-expanded">
                         <span class="select">
-                            <select>
-                                <option>Select dropdown</option>
-                                <option>With options</option>
+                            <select :disabled="graph.nodes.length == 0" v-model="fromNode">
+                                <option v-show="graph.nodes.length != 0" v-for="node in graph.nodes">{{ node.id }}</option>
                             </select>
                         </span>
                     </p>
@@ -43,14 +42,13 @@
                     </div>
                     <p class="control is-expanded">
                         <span class="select">
-                            <select>
-                                <option>Select dropdown</option>
-                                <option>With options</option>
+                            <select :disabled="toNodeDisabled" v-model="toNode">
+                                <option v-for="node in toNodeValues">{{ node.id }}</option>
                             </select>
                         </span>
                     </p>
                 </div>
-                <a class="button is-primary is-outlined pull-right">Add</a>
+                <a class="button is-primary is-outlined pull-right" @click="addEdge">Add</a>
             </div>
         </transition>
     </div>
@@ -63,7 +61,11 @@
                 graphData: null,
                 cy: null,
                 activeWindow: null,
-                nodeToAddId: null
+                nodeToAddId: null,
+                toNodeDisabled: true,
+                toNodeValues: [],
+                fromNode: null,
+                toNode: null
             }
         },
         methods: {
@@ -89,6 +91,24 @@
                 this.graph.addNode(node);
                 this.cy.addNode(node); // Add to canvas
                 this.nodeToAddId = null;
+                this.$refs.addNodeInput.focus();
+            },
+            addEdge() {
+                if (this.fromNode == null || this.fromNode == '') { 
+                    Toastr.error('Source node is required !')
+                    return;
+                }
+                if (this.toNode == null || this.toNode == '') { 
+                    Toastr.error('Target node is required !')
+                    return;
+                }
+                if (this.graph.edgeExistsBetween(this.fromNode, this.toNode)) {
+                    Toastr.error('Edge already exists between ' + this.fromNode + ' and ' + this.toNode);
+                    return;
+                }
+                this.graph.link(this.fromNode).to(this.toNode);
+                this.cy.addEdge(this.fromNode, this.toNode); // Add to canvas
+                this.fromNode = this.toNode = null;
             }
         },
         mounted() {
@@ -98,7 +118,12 @@
             graph(newValue) {
                 if (!this.graphData) { // First time
                     window.cy = this.cy = Cytoscape.createFromGraph(newValue, this.$refs.graph);
+                    this.cy.center();
                 }
+            },
+            fromNode(newValue) {
+                this.toNodeDisabled = !(!!newValue);
+                this.toNodeValues = this.graph.nodes.filter((n) => n.id != newValue);
             }
         }
     }

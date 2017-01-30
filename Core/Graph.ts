@@ -10,7 +10,7 @@ export default class Graph {
     relationships: RelationshipsMap = {};
     title: string = '';
 
-    link(node: Node): NodeLinker {
+    link(node: Node | string): NodeLinker {
         return new NodeLinker(node, this);
     }
 
@@ -37,6 +37,15 @@ export default class Graph {
         return null;
     }
 
+    edgeExistsBetween(fromNode: Node | string, toNode: Node | string): Edge {
+        for (let e of this.edges) {
+            if (e.fromNode.equals(this.nodeify(fromNode))
+                && e.toNode.equals(this.nodeify(toNode)))
+                return e;
+        }
+        return null;
+    }
+
     nodeExists(node: Node): Node {
         for (let n of this.nodes) {
             if (n.equals(node))
@@ -57,6 +66,14 @@ export default class Graph {
     apply(algorithm: Algorithm): Graph {
         algorithm.graph = this;
         return algorithm.apply();
+    }
+
+    findNodeById(id: string): Node {
+        return this.nodes.filter((n) => n.id == id)[0];
+    }
+
+    nodeify(node: Node | string): Node {
+        return !(node instanceof Node) ? this.findNodeById(node as string) : node as Node
     }
 
 }

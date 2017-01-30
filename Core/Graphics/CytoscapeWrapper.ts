@@ -5,7 +5,7 @@ import Graph from '../Graph';
 import Node from '../Node';
 
 export default class CytoscapeWrapper {
-
+    static idCounter: number = 1;
     constructor(private cy?: Cy.Instance) {
 
     }
@@ -14,14 +14,34 @@ export default class CytoscapeWrapper {
         return this.cy;
     }
 
-    addNode(node: Node): void {
+    addNode(node: Node, position?: Cy.Position): void {
         let elt: Cy.ElementDefinition = {
             data: {
                 id: node.id,
-                name: node.id
+                name: node.id,
+                position
             }
         };
         this.cy.add(elt);
+    }
+
+    addEdge(fromNode: Node | string, toNode: Node | string): void {
+        let elt: Cy.EdgeDefinition = {
+            data: {
+                id: `${CytoscapeWrapper.idCounter++}`,
+                source: this.nodeToString(fromNode),
+                target: this.nodeToString(toNode)
+            }
+        }
+        this.cy.add(elt);
+    }
+
+    nodeToString(node: Node | string): string {
+        return node instanceof Node ? node.id : node;
+    }
+
+    center() {
+        this.cy.center();
     }
 
     static create(opts: Cy.CytoscapeOptions): CytoscapeWrapper {
@@ -64,16 +84,15 @@ export default class CytoscapeWrapper {
     }
 
     static getCytoscapeEdges(graph: Graph): any[] {
-        let edges = [], id = 1;
+        let edges = [];
         for (let edge of graph.edges) {
             edges.push({
                 data: {
-                    id,
+                    id: CytoscapeWrapper.idCounter++,
                     source: edge.fromNode.id,
                     target: edge.toNode.id
                 }
             });
-            id++;
         }
         return edges;
     }
@@ -113,4 +132,5 @@ export default class CytoscapeWrapper {
             }
         };
     }
+
 }
